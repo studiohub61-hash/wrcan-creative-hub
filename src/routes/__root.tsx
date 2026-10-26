@@ -6,12 +6,18 @@ import {
   useRouter,
   HeadContent,
   Scripts,
-  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AuthProvider } from "@/hooks/useAuth";
+import { PresenceProvider } from "@/hooks/usePresence";
+import { Toaster } from "@/components/ui/sonner";
+import { BootScreen } from "@/components/BootScreen";
+import { InstallPrompt } from "@/components/InstallPrompt";
+import { NotificationBalloons } from "@/components/NotificationBalloons";
+
 
 function NotFoundComponent() {
   return (
@@ -35,7 +41,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: ErrorComponentProps) {
+function ErrorComponent({ error, reset }: import("@tanstack/react-router").ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -78,21 +84,32 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "WRCAN app" },
+      { name: "theme-color", content: "#0a0a0a" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Wanda" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "description", content: "Talent Connect Hub connects job seekers, students, recruiters, and catering companies with training and employment opportunities." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "WRCAN app" },
+      { property: "og:description", content: "Talent Connect Hub connects job seekers, students, recruiters, and catering companies with training and employment opportunities." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "WRCAN app" },
+      { name: "twitter:description", content: "Talent Connect Hub connects job seekers, students, recruiters, and catering companies with training and employment opportunities." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/be9e85e58a56b701cdc5884e7b3a3155/id-preview-fabd07b8--493e5131-4593-4b00-b2ee-9588a5f796f3.lovable.app-1786710368984.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/be9e85e58a56b701cdc5884e7b3a3155/id-preview-fabd07b8--493e5131-4593-4b00-b2ee-9588a5f796f3.lovable.app-1786710368984.png" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icons/icon-192.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -120,8 +137,17 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AuthProvider>
+        <PresenceProvider>
+          <BootScreen />
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <InstallPrompt />
+          <NotificationBalloons />
+          <Toaster position="top-center" richColors />
+        </PresenceProvider>
+      </AuthProvider>
+
     </QueryClientProvider>
   );
 }

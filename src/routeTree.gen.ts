@@ -10,33 +10,335 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AttendanceRouteImport } from './routes/attendance'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CampaignRouteImport } from './routes/campaign'
+import { Route as DonorsRouteImport } from './routes/donors'
+import { Route as JobsRouteImport } from './routes/jobs'
+import { Route as LiveStudioRouteImport } from './routes/live-studio'
+import { Route as MediaStudioRouteImport } from './routes/media-studio'
+import { Route as OfflineRouteImport } from './routes/offline'
+import { Route as ReelsRouteImport } from './routes/reels'
+import { Route as SmartstartRouteImport } from './routes/smartstart'
+import { Route as TrainingRouteImport } from './routes/training'
+import { Route as AuthenticatedCampaignToolsRouteImport } from './routes/_authenticated/campaign-tools'
+import { Route as AuthenticatedCertificatesRouteImport } from './routes/_authenticated/certificates'
+import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat'
+import { Route as AuthenticatedCoachRouteImport } from './routes/_authenticated/coach'
+import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
+import { Route as AuthenticatedControlRoomRouteImport } from './routes/_authenticated/control-room'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedSessionsRouteImport } from './routes/_authenticated/sessions'
+import { Route as AuthenticatedStatusRouteImport } from './routes/_authenticated/status'
+import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
+import { Route as TrainingModuleIdRouteImport } from './routes/training.$moduleId'
+import { Route as AuthenticatedEcdFeatureRouteImport } from './routes/_authenticated/ecd.$feature'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AttendanceRoute = AttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CampaignRoute = CampaignRouteImport.update({
+  id: '/campaign',
+  path: '/campaign',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonorsRoute = DonorsRouteImport.update({
+  id: '/donors',
+  path: '/donors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobsRoute = JobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiveStudioRoute = LiveStudioRouteImport.update({
+  id: '/live-studio',
+  path: '/live-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaStudioRoute = MediaStudioRouteImport.update({
+  id: '/media-studio',
+  path: '/media-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfflineRoute = OfflineRouteImport.update({
+  id: '/offline',
+  path: '/offline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReelsRoute = ReelsRouteImport.update({
+  id: '/reels',
+  path: '/reels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SmartstartRoute = SmartstartRouteImport.update({
+  id: '/smartstart',
+  path: '/smartstart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrainingRoute = TrainingRouteImport.update({
+  id: '/training',
+  path: '/training',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCampaignToolsRoute =
+  AuthenticatedCampaignToolsRouteImport.update({
+    id: '/campaign-tools',
+    path: '/campaign-tools',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCertificatesRoute =
+  AuthenticatedCertificatesRouteImport.update({
+    id: '/certificates',
+    path: '/certificates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCoachRoute = AuthenticatedCoachRouteImport.update({
+  id: '/coach',
+  path: '/coach',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedComplianceRoute = AuthenticatedComplianceRouteImport.update({
+  id: '/compliance',
+  path: '/compliance',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedControlRoomRoute =
+  AuthenticatedControlRoomRouteImport.update({
+    id: '/control-room',
+    path: '/control-room',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSessionsRoute = AuthenticatedSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStatusRoute = AuthenticatedStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const JobsJobIdRoute = JobsJobIdRouteImport.update({
+  id: '/$jobId',
+  path: '/$jobId',
+  getParentRoute: () => JobsRoute,
+} as any)
+const TrainingModuleIdRoute = TrainingModuleIdRouteImport.update({
+  id: '/$moduleId',
+  path: '/$moduleId',
+  getParentRoute: () => TrainingRoute,
+} as any)
+const AuthenticatedEcdFeatureRoute = AuthenticatedEcdFeatureRouteImport.update({
+  id: '/ecd/$feature',
+  path: '/ecd/$feature',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/attendance': typeof AttendanceRoute
+  '/auth': typeof AuthRoute
+  '/campaign': typeof CampaignRoute
+  '/donors': typeof DonorsRoute
+  '/jobs': typeof JobsRouteWithChildren
+  '/live-studio': typeof LiveStudioRoute
+  '/media-studio': typeof MediaStudioRoute
+  '/offline': typeof OfflineRoute
+  '/reels': typeof ReelsRoute
+  '/smartstart': typeof SmartstartRoute
+  '/training': typeof TrainingRouteWithChildren
+  '/campaign-tools': typeof AuthenticatedCampaignToolsRoute
+  '/certificates': typeof AuthenticatedCertificatesRoute
+  '/chat': typeof AuthenticatedChatRoute
+  '/coach': typeof AuthenticatedCoachRoute
+  '/compliance': typeof AuthenticatedComplianceRoute
+  '/control-room': typeof AuthenticatedControlRoomRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/sessions': typeof AuthenticatedSessionsRoute
+  '/status': typeof AuthenticatedStatusRoute
+  '/jobs/$jobId': typeof JobsJobIdRoute
+  '/training/$moduleId': typeof TrainingModuleIdRoute
+  '/ecd/$feature': typeof AuthenticatedEcdFeatureRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/attendance': typeof AttendanceRoute
+  '/auth': typeof AuthRoute
+  '/campaign': typeof CampaignRoute
+  '/donors': typeof DonorsRoute
+  '/jobs': typeof JobsRouteWithChildren
+  '/live-studio': typeof LiveStudioRoute
+  '/media-studio': typeof MediaStudioRoute
+  '/offline': typeof OfflineRoute
+  '/reels': typeof ReelsRoute
+  '/smartstart': typeof SmartstartRoute
+  '/training': typeof TrainingRouteWithChildren
+  '/campaign-tools': typeof AuthenticatedCampaignToolsRoute
+  '/certificates': typeof AuthenticatedCertificatesRoute
+  '/chat': typeof AuthenticatedChatRoute
+  '/coach': typeof AuthenticatedCoachRoute
+  '/compliance': typeof AuthenticatedComplianceRoute
+  '/control-room': typeof AuthenticatedControlRoomRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/sessions': typeof AuthenticatedSessionsRoute
+  '/status': typeof AuthenticatedStatusRoute
+  '/jobs/$jobId': typeof JobsJobIdRoute
+  '/training/$moduleId': typeof TrainingModuleIdRoute
+  '/ecd/$feature': typeof AuthenticatedEcdFeatureRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/attendance': typeof AttendanceRoute
+  '/auth': typeof AuthRoute
+  '/campaign': typeof CampaignRoute
+  '/donors': typeof DonorsRoute
+  '/jobs': typeof JobsRouteWithChildren
+  '/live-studio': typeof LiveStudioRoute
+  '/media-studio': typeof MediaStudioRoute
+  '/offline': typeof OfflineRoute
+  '/reels': typeof ReelsRoute
+  '/smartstart': typeof SmartstartRoute
+  '/training': typeof TrainingRouteWithChildren
+  '/_authenticated/campaign-tools': typeof AuthenticatedCampaignToolsRoute
+  '/_authenticated/certificates': typeof AuthenticatedCertificatesRoute
+  '/_authenticated/chat': typeof AuthenticatedChatRoute
+  '/_authenticated/coach': typeof AuthenticatedCoachRoute
+  '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
+  '/_authenticated/control-room': typeof AuthenticatedControlRoomRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/sessions': typeof AuthenticatedSessionsRoute
+  '/_authenticated/status': typeof AuthenticatedStatusRoute
+  '/jobs/$jobId': typeof JobsJobIdRoute
+  '/training/$moduleId': typeof TrainingModuleIdRoute
+  '/_authenticated/ecd/$feature': typeof AuthenticatedEcdFeatureRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/attendance'
+    | '/auth'
+    | '/campaign'
+    | '/donors'
+    | '/jobs'
+    | '/live-studio'
+    | '/media-studio'
+    | '/offline'
+    | '/reels'
+    | '/smartstart'
+    | '/training'
+    | '/campaign-tools'
+    | '/certificates'
+    | '/chat'
+    | '/coach'
+    | '/compliance'
+    | '/control-room'
+    | '/profile'
+    | '/sessions'
+    | '/status'
+    | '/jobs/$jobId'
+    | '/training/$moduleId'
+    | '/ecd/$feature'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/attendance'
+    | '/auth'
+    | '/campaign'
+    | '/donors'
+    | '/jobs'
+    | '/live-studio'
+    | '/media-studio'
+    | '/offline'
+    | '/reels'
+    | '/smartstart'
+    | '/training'
+    | '/campaign-tools'
+    | '/certificates'
+    | '/chat'
+    | '/coach'
+    | '/compliance'
+    | '/control-room'
+    | '/profile'
+    | '/sessions'
+    | '/status'
+    | '/jobs/$jobId'
+    | '/training/$moduleId'
+    | '/ecd/$feature'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/attendance'
+    | '/auth'
+    | '/campaign'
+    | '/donors'
+    | '/jobs'
+    | '/live-studio'
+    | '/media-studio'
+    | '/offline'
+    | '/reels'
+    | '/smartstart'
+    | '/training'
+    | '/_authenticated/campaign-tools'
+    | '/_authenticated/certificates'
+    | '/_authenticated/chat'
+    | '/_authenticated/coach'
+    | '/_authenticated/compliance'
+    | '/_authenticated/control-room'
+    | '/_authenticated/profile'
+    | '/_authenticated/sessions'
+    | '/_authenticated/status'
+    | '/jobs/$jobId'
+    | '/training/$moduleId'
+    | '/_authenticated/ecd/$feature'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AttendanceRoute: typeof AttendanceRoute
+  AuthRoute: typeof AuthRoute
+  CampaignRoute: typeof CampaignRoute
+  DonorsRoute: typeof DonorsRoute
+  JobsRoute: typeof JobsRouteWithChildren
+  LiveStudioRoute: typeof LiveStudioRoute
+  MediaStudioRoute: typeof MediaStudioRoute
+  OfflineRoute: typeof OfflineRoute
+  ReelsRoute: typeof ReelsRoute
+  SmartstartRoute: typeof SmartstartRoute
+  TrainingRoute: typeof TrainingRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +350,242 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/attendance': {
+      id: '/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AttendanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/campaign': {
+      id: '/campaign'
+      path: '/campaign'
+      fullPath: '/campaign'
+      preLoaderRoute: typeof CampaignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donors': {
+      id: '/donors'
+      path: '/donors'
+      fullPath: '/donors'
+      preLoaderRoute: typeof DonorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jobs': {
+      id: '/jobs'
+      path: '/jobs'
+      fullPath: '/jobs'
+      preLoaderRoute: typeof JobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/live-studio': {
+      id: '/live-studio'
+      path: '/live-studio'
+      fullPath: '/live-studio'
+      preLoaderRoute: typeof LiveStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media-studio': {
+      id: '/media-studio'
+      path: '/media-studio'
+      fullPath: '/media-studio'
+      preLoaderRoute: typeof MediaStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offline': {
+      id: '/offline'
+      path: '/offline'
+      fullPath: '/offline'
+      preLoaderRoute: typeof OfflineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reels': {
+      id: '/reels'
+      path: '/reels'
+      fullPath: '/reels'
+      preLoaderRoute: typeof ReelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/smartstart': {
+      id: '/smartstart'
+      path: '/smartstart'
+      fullPath: '/smartstart'
+      preLoaderRoute: typeof SmartstartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/training': {
+      id: '/training'
+      path: '/training'
+      fullPath: '/training'
+      preLoaderRoute: typeof TrainingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/campaign-tools': {
+      id: '/_authenticated/campaign-tools'
+      path: '/campaign-tools'
+      fullPath: '/campaign-tools'
+      preLoaderRoute: typeof AuthenticatedCampaignToolsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/certificates': {
+      id: '/_authenticated/certificates'
+      path: '/certificates'
+      fullPath: '/certificates'
+      preLoaderRoute: typeof AuthenticatedCertificatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/chat': {
+      id: '/_authenticated/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof AuthenticatedChatRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/coach': {
+      id: '/_authenticated/coach'
+      path: '/coach'
+      fullPath: '/coach'
+      preLoaderRoute: typeof AuthenticatedCoachRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compliance': {
+      id: '/_authenticated/compliance'
+      path: '/compliance'
+      fullPath: '/compliance'
+      preLoaderRoute: typeof AuthenticatedComplianceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/control-room': {
+      id: '/_authenticated/control-room'
+      path: '/control-room'
+      fullPath: '/control-room'
+      preLoaderRoute: typeof AuthenticatedControlRoomRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sessions': {
+      id: '/_authenticated/sessions'
+      path: '/sessions'
+      fullPath: '/sessions'
+      preLoaderRoute: typeof AuthenticatedSessionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/status': {
+      id: '/_authenticated/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof AuthenticatedStatusRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/jobs/$jobId': {
+      id: '/jobs/$jobId'
+      path: '/$jobId'
+      fullPath: '/jobs/$jobId'
+      preLoaderRoute: typeof JobsJobIdRouteImport
+      parentRoute: typeof JobsRoute
+    }
+    '/training/$moduleId': {
+      id: '/training/$moduleId'
+      path: '/$moduleId'
+      fullPath: '/training/$moduleId'
+      preLoaderRoute: typeof TrainingModuleIdRouteImport
+      parentRoute: typeof TrainingRoute
+    }
+    '/_authenticated/ecd/$feature': {
+      id: '/_authenticated/ecd/$feature'
+      path: '/ecd/$feature'
+      fullPath: '/ecd/$feature'
+      preLoaderRoute: typeof AuthenticatedEcdFeatureRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCampaignToolsRoute: typeof AuthenticatedCampaignToolsRoute
+  AuthenticatedCertificatesRoute: typeof AuthenticatedCertificatesRoute
+  AuthenticatedChatRoute: typeof AuthenticatedChatRoute
+  AuthenticatedCoachRoute: typeof AuthenticatedCoachRoute
+  AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
+  AuthenticatedControlRoomRoute: typeof AuthenticatedControlRoomRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSessionsRoute: typeof AuthenticatedSessionsRoute
+  AuthenticatedStatusRoute: typeof AuthenticatedStatusRoute
+  AuthenticatedEcdFeatureRoute: typeof AuthenticatedEcdFeatureRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCampaignToolsRoute: AuthenticatedCampaignToolsRoute,
+  AuthenticatedCertificatesRoute: AuthenticatedCertificatesRoute,
+  AuthenticatedChatRoute: AuthenticatedChatRoute,
+  AuthenticatedCoachRoute: AuthenticatedCoachRoute,
+  AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
+  AuthenticatedControlRoomRoute: AuthenticatedControlRoomRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSessionsRoute: AuthenticatedSessionsRoute,
+  AuthenticatedStatusRoute: AuthenticatedStatusRoute,
+  AuthenticatedEcdFeatureRoute: AuthenticatedEcdFeatureRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface JobsRouteChildren {
+  JobsJobIdRoute: typeof JobsJobIdRoute
+}
+
+const JobsRouteChildren: JobsRouteChildren = {
+  JobsJobIdRoute: JobsJobIdRoute,
+}
+
+const JobsRouteWithChildren = JobsRoute._addFileChildren(JobsRouteChildren)
+
+interface TrainingRouteChildren {
+  TrainingModuleIdRoute: typeof TrainingModuleIdRoute
+}
+
+const TrainingRouteChildren: TrainingRouteChildren = {
+  TrainingModuleIdRoute: TrainingModuleIdRoute,
+}
+
+const TrainingRouteWithChildren = TrainingRoute._addFileChildren(
+  TrainingRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AttendanceRoute: AttendanceRoute,
+  AuthRoute: AuthRoute,
+  CampaignRoute: CampaignRoute,
+  DonorsRoute: DonorsRoute,
+  JobsRoute: JobsRouteWithChildren,
+  LiveStudioRoute: LiveStudioRoute,
+  MediaStudioRoute: MediaStudioRoute,
+  OfflineRoute: OfflineRoute,
+  ReelsRoute: ReelsRoute,
+  SmartstartRoute: SmartstartRoute,
+  TrainingRoute: TrainingRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
