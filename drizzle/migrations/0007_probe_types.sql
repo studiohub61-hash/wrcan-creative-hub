@@ -1,0 +1,1 @@
+DO $$ BEGIN RAISE NOTICE 'exists: %', (SELECT count(*) FROM pg_type WHERE typname='app_role'); END $$;
