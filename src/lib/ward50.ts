@@ -22,6 +22,7 @@ export type Evidence = {
   meetsItem: number | null;
 };
 export type Review = { status: ReviewStatus; comment: string };
+export type Timestamped = Evidence & { timestamp: string };
 export type Filters = { ecdId: string; category: string; status: string; from: string; to: string };
 
 export const REVIEW_KEY = "wrcan.ward50.v1";
@@ -213,7 +214,7 @@ export function inRange(timestamp: string, from: string, to: string): boolean {
   return true;
 }
 
-export function applyFilters(evidence: Evidence[], filters: Filters, now: number): Evidence[] {
+export function applyFilters(evidence: Evidence[], filters: Filters, now: number): Timestamped[] {
   return evidence
     .map((ev) => ({ ...ev, timestamp: evidenceAt(ev, now) }))
     .filter((ev) => {
@@ -229,7 +230,7 @@ export function formatGps(gps: Evidence["gps"]): string {
   return `${gps.latitude.toFixed(4)}°, ${gps.longitude.toFixed(4)}° (±${gps.accuracy} m)`;
 }
 
-export function coachDailyRows(evidence: Evidence[], ecds: Ecd[]): Record<string, unknown>[] {
+export function coachDailyRows(evidence: Timestamped[], ecds: Ecd[]): Record<string, unknown>[] {
   const byId = new Map(ecds.map((e) => [e.id, e]));
   return evidence.map((ev) => {
     const ecd = byId.get(ev.ecdId);
