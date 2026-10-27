@@ -142,7 +142,7 @@ describe("kpis & tasks", () => {
     const t = tasksToday("c1", ECD_LIST, SEED_EVIDENCE);
     expect(t.assigned).toBe(ECD_LIST.filter((e) => e.coachId === "c1").length);
     expect(t.notSubmitted).toBeGreaterThanOrEqual(0);
-    expect(t.flagged).toBe(0); // c1 has no needs_work/rejected within 24h
+    expect(t.flagged).toBe(1); // ev-10 (rejected, 7h ago) is c1's only flag within 24h
   });
 
   it("reports quality per category", () => {
