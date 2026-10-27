@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   Check,
@@ -88,7 +88,11 @@ function Ward50() {
   const [commentFor, setCommentFor] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
   const [filters, setFilters] = useState<Filters>({ ecdId: "", category: "", status: "", from: "", to: "" });
-  const now = Date.now();
+  // Fixed seed time for SSR/first render (hydration-safe); real clock after mount.
+  const [now, setNow] = useState(() => DEMO_NOW.getTime());
+  useEffect(() => {
+    setNow(Date.now());
+  }, []);
 
   const evidence = useMemo(() => applyReviews(SEED_EVIDENCE, reviews), [reviews]);
 
