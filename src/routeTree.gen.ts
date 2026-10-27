@@ -22,6 +22,7 @@ import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as ReelsRouteImport } from './routes/reels'
 import { Route as SmartstartRouteImport } from './routes/smartstart'
 import { Route as TrainingRouteImport } from './routes/training'
+import { Route as Ward50RouteImport } from './routes/ward50'
 import { Route as AuthenticatedCampaignToolsRouteImport } from './routes/_authenticated/campaign-tools'
 import { Route as AuthenticatedCertificatesRouteImport } from './routes/_authenticated/certificates'
 import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat'
@@ -97,6 +98,11 @@ const SmartstartRoute = SmartstartRouteImport.update({
 const TrainingRoute = TrainingRouteImport.update({
   id: '/training',
   path: '/training',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Ward50Route = Ward50RouteImport.update({
+  id: '/ward50',
+  path: '/ward50',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedCampaignToolsRoute =
@@ -176,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/reels': typeof ReelsRoute
   '/smartstart': typeof SmartstartRoute
   '/training': typeof TrainingRouteWithChildren
+  '/ward50': typeof Ward50Route
   '/campaign-tools': typeof AuthenticatedCampaignToolsRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
   '/chat': typeof AuthenticatedChatRoute
@@ -202,6 +209,7 @@ export interface FileRoutesByTo {
   '/reels': typeof ReelsRoute
   '/smartstart': typeof SmartstartRoute
   '/training': typeof TrainingRouteWithChildren
+  '/ward50': typeof Ward50Route
   '/campaign-tools': typeof AuthenticatedCampaignToolsRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
   '/chat': typeof AuthenticatedChatRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/reels': typeof ReelsRoute
   '/smartstart': typeof SmartstartRoute
   '/training': typeof TrainingRouteWithChildren
+  '/ward50': typeof Ward50Route
   '/_authenticated/campaign-tools': typeof AuthenticatedCampaignToolsRoute
   '/_authenticated/certificates': typeof AuthenticatedCertificatesRoute
   '/_authenticated/chat': typeof AuthenticatedChatRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/reels'
     | '/smartstart'
     | '/training'
+    | '/ward50'
     | '/campaign-tools'
     | '/certificates'
     | '/chat'
@@ -284,6 +294,7 @@ export interface FileRouteTypes {
     | '/reels'
     | '/smartstart'
     | '/training'
+    | '/ward50'
     | '/campaign-tools'
     | '/certificates'
     | '/chat'
@@ -311,6 +322,7 @@ export interface FileRouteTypes {
     | '/reels'
     | '/smartstart'
     | '/training'
+    | '/ward50'
     | '/_authenticated/campaign-tools'
     | '/_authenticated/certificates'
     | '/_authenticated/chat'
@@ -339,6 +351,7 @@ export interface RootRouteChildren {
   ReelsRoute: typeof ReelsRoute
   SmartstartRoute: typeof SmartstartRoute
   TrainingRoute: typeof TrainingRouteWithChildren
+  Ward50Route: typeof Ward50Route
 }
 
 declare module '@tanstack/react-router' {
@@ -432,6 +445,13 @@ declare module '@tanstack/react-router' {
       path: '/training'
       fullPath: '/training'
       preLoaderRoute: typeof TrainingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ward50': {
+      id: '/ward50'
+      path: '/ward50'
+      fullPath: '/ward50'
+      preLoaderRoute: typeof Ward50RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/campaign-tools': {
@@ -586,6 +606,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReelsRoute: ReelsRoute,
   SmartstartRoute: SmartstartRoute,
   TrainingRoute: TrainingRouteWithChildren,
+  Ward50Route: Ward50Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
