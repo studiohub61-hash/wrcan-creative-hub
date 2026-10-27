@@ -83,7 +83,7 @@ function loadReviews(): Record<string, Review> {
 
 function Ward50() {
   const [mode, setMode] = useState<WardMode>("manager");
-  const [coachId, setCoachId] = useState(COACHES[0].id);
+  const [coachId, setCoachId] = useState(COACHES[0]!.id);
   const [reviews, setReviews] = useState<Record<string, Review>>(loadReviews);
   const [commentFor, setCommentFor] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
@@ -487,7 +487,7 @@ function Ward50() {
       <p className="pb-4 text-center text-[0.65rem] text-muted-foreground">
         Demo data for the Ward 50 Snake Park pilot · review decisions save on this device only ·{" "}
         {TRACKER_ITEMS} tracker items · {COACHES.length} coaches · {ECD_LIST.length} ECDs · seed{" "}
-        {evidenceAt(SEED_EVIDENCE[0], now).slice(0, 10)}
+        {evidenceAt(SEED_EVIDENCE[0]!, now).slice(0, 10)}
       </p>
     </Shell>
   );
