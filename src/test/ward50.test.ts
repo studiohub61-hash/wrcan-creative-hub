@@ -39,10 +39,10 @@ describe("ward50 demo data", () => {
 
 describe("60-day countdown", () => {
   it("caps days in program at 60 and never goes negative on days left", () => {
-    const ecd = { ...ECD_LIST[0], daysIn: 47 };
+    const ecd = { ...ECD_LIST[0]!, daysIn: 47 };
     expect(daysInProgram(ecd)).toBe(47);
     expect(daysLeft(ecd)).toBe(PROGRAM_DAYS - 47);
-    const over = { ...ECD_LIST[0], daysIn: 80 };
+    const over = { ...ECD_LIST[0]!, daysIn: 80 };
     expect(daysInProgram(over)).toBe(PROGRAM_DAYS);
     expect(daysLeft(over)).toBe(0);
   });
@@ -106,7 +106,7 @@ describe("filters & exports", () => {
       NOW,
     );
     expect(rows).toHaveLength(1);
-    expect(rows[0].id).toBe("ev-03");
+    expect(rows[0]!.id).toBe("ev-03");
 
     const ranged = applyFilters(
       SEED_EVIDENCE,
@@ -153,6 +153,6 @@ describe("kpis & tasks", () => {
   });
 
   it("evidenceAt derives an ISO timestamp from hours ago", () => {
-    expect(evidenceAt(SEED_EVIDENCE[0], NOW)).toBe("2026-10-26T05:00:00.000Z");
+    expect(evidenceAt(SEED_EVIDENCE[0]!, NOW)).toBe("2026-10-26T05:00:00.000Z");
   });
 });
