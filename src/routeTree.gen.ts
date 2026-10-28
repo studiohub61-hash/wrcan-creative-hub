@@ -19,6 +19,7 @@ import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as LiveStudioRouteImport } from './routes/live-studio'
 import { Route as MediaStudioRouteImport } from './routes/media-studio'
 import { Route as OfflineRouteImport } from './routes/offline'
+import { Route as PromotionsRouteImport } from './routes/promotions'
 import { Route as ReelsRouteImport } from './routes/reels'
 import { Route as SmartstartRouteImport } from './routes/smartstart'
 import { Route as TrainingRouteImport } from './routes/training'
@@ -83,6 +84,11 @@ const MediaStudioRoute = MediaStudioRouteImport.update({
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
   path: '/offline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PromotionsRoute = PromotionsRouteImport.update({
+  id: '/promotions',
+  path: '/promotions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReelsRoute = ReelsRouteImport.update({
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/live-studio': typeof LiveStudioRoute
   '/media-studio': typeof MediaStudioRoute
   '/offline': typeof OfflineRoute
+  '/promotions': typeof PromotionsRoute
   '/reels': typeof ReelsRoute
   '/smartstart': typeof SmartstartRoute
   '/training': typeof TrainingRouteWithChildren
@@ -206,6 +213,7 @@ export interface FileRoutesByTo {
   '/live-studio': typeof LiveStudioRoute
   '/media-studio': typeof MediaStudioRoute
   '/offline': typeof OfflineRoute
+  '/promotions': typeof PromotionsRoute
   '/reels': typeof ReelsRoute
   '/smartstart': typeof SmartstartRoute
   '/training': typeof TrainingRouteWithChildren
@@ -235,6 +243,7 @@ export interface FileRoutesById {
   '/live-studio': typeof LiveStudioRoute
   '/media-studio': typeof MediaStudioRoute
   '/offline': typeof OfflineRoute
+  '/promotions': typeof PromotionsRoute
   '/reels': typeof ReelsRoute
   '/smartstart': typeof SmartstartRoute
   '/training': typeof TrainingRouteWithChildren
@@ -264,6 +273,7 @@ export interface FileRouteTypes {
     | '/live-studio'
     | '/media-studio'
     | '/offline'
+    | '/promotions'
     | '/reels'
     | '/smartstart'
     | '/training'
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
     | '/live-studio'
     | '/media-studio'
     | '/offline'
+    | '/promotions'
     | '/reels'
     | '/smartstart'
     | '/training'
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/live-studio'
     | '/media-studio'
     | '/offline'
+    | '/promotions'
     | '/reels'
     | '/smartstart'
     | '/training'
@@ -348,6 +360,7 @@ export interface RootRouteChildren {
   LiveStudioRoute: typeof LiveStudioRoute
   MediaStudioRoute: typeof MediaStudioRoute
   OfflineRoute: typeof OfflineRoute
+  PromotionsRoute: typeof PromotionsRoute
   ReelsRoute: typeof ReelsRoute
   SmartstartRoute: typeof SmartstartRoute
   TrainingRoute: typeof TrainingRouteWithChildren
@@ -424,6 +437,13 @@ declare module '@tanstack/react-router' {
       path: '/offline'
       fullPath: '/offline'
       preLoaderRoute: typeof OfflineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/promotions': {
+      id: '/promotions'
+      path: '/promotions'
+      fullPath: '/promotions'
+      preLoaderRoute: typeof PromotionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reels': {
@@ -603,6 +623,7 @@ const rootRouteChildren: RootRouteChildren = {
   LiveStudioRoute: LiveStudioRoute,
   MediaStudioRoute: MediaStudioRoute,
   OfflineRoute: OfflineRoute,
+  PromotionsRoute: PromotionsRoute,
   ReelsRoute: ReelsRoute,
   SmartstartRoute: SmartstartRoute,
   TrainingRoute: TrainingRouteWithChildren,

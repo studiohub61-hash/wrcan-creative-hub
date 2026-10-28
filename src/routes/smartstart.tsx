@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ArrowUpRight, BookOpen, ClipboardCheck, MapPin, Radio, WifiOff, Users, Camera } from 'lucide-react';
+import { ArrowUpRight, BookOpen, ClipboardCheck, Handshake, MapPin, Radio, WifiOff, Users, Camera } from 'lucide-react';
 import { Shell } from '@/components/Shell';
 import { ECD_SECTIONS } from '@/lib/ecd';
 
