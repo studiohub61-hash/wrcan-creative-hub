@@ -74,7 +74,8 @@ const SEED_SPONSORS = ['Meridian Hotels Group', 'Ubuntu Fresh Foods', 'Skyline E
 const SKILLS = ['Event Hosting', 'Catering Logistics', 'Fine Dining Service', 'Brand Activation', 'Client Relations'];
 const ROLES = ['Brand Ambassador', 'Event Host', 'Catering Logistics', 'Fine Dining Service', 'Bar Service', 'Event Marketer'];
 
-const fmtRand = (n: number) => `R${n.toLocaleString('en-ZA')}`;
+const fmtNum = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const fmtRand = (n: number) => `R${fmtNum(n)}`;
 const statusStyle = (s: SubmissionStatus) =>
   s === 'Approved' ? 'border-primary/60 bg-primary/10 text-primary'
   : s === 'Pending' ? 'border-border bg-muted text-muted-foreground'
@@ -307,7 +308,7 @@ function DonorPortal({ pledges, setPledges }: { pledges: Pledge[]; setPledges: R
           {stats.map(({ label, value, icon: Icon }) => (
             <div key={label} className="rounded-lg border border-border bg-muted/40 p-3 text-center transition-colors hover:border-primary/50">
               <Icon className="mx-auto size-5 text-primary" />
-              <p className="mt-1.5 font-display text-2xl text-primary">{typeof value === 'number' ? value.toLocaleString() : value}</p>
+              <p className="mt-1.5 font-display text-2xl text-primary">{typeof value === 'number' ? fmtNum(value) : value}</p>
               <p className="mt-0.5 text-[0.65rem] tracking-widest text-muted-foreground uppercase">{label}</p>
             </div>
           ))}
