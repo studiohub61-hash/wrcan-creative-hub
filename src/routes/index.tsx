@@ -16,6 +16,7 @@ import { Medallion } from "@/components/Medallion";
 import { Shell } from "@/components/Shell";
 import { SmartStartButton } from "@/components/SmartStartButton";
 import { UatPanel } from "@/components/UatPanel";
+import { PromotionsHubSection } from "@/components/PromotionsHub";
 import { RoseButton } from "@/components/EmpireUI";
 import { useControlAccess } from "@/hooks/useBadges";
 import { useAuth } from "@/hooks/useAuth";
@@ -83,6 +84,14 @@ function Index() {
           Welcome, {profile.full_name || "Member"} · {profile.member_type}
         </p>
       ) : null}
+
+      <div className="mb-8 rounded-2xl border border-primary/30 bg-card/60 p-3 shadow-sm sm:p-5">
+        <div className="mb-4 text-center">
+          <p className="text-xs font-semibold tracking-widest text-primary uppercase">Promotions & Partnerships Hub</p>
+          <p className="text-xs text-muted-foreground">Promoters · Donors · Sponsors</p>
+        </div>
+        <PromotionsHubSection />
+      </div>
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-6 pb-6">
         {tiles.map((t) =>
