@@ -117,7 +117,7 @@ function PromoterDashboard({ submissions, setSubmissions }: { submissions: Submi
   const [available, setAvailable] = useState(true);
   const [event, setEvent] = useState('');
   const [date, setDate] = useState('');
-  const [role, setRole] = useState(ROLES[0]);
+  const [role, setRole] = useState<string>(ROLES[0]!);
   const [description, setDescription] = useState('');
   const [files, setFiles] = useState<string[]>([]);
   const [dragging, setDragging] = useState(false);
@@ -267,10 +267,10 @@ function PromoterDashboard({ submissions, setSubmissions }: { submissions: Submi
 /* ------------------------------ donor portal ----------------------------- */
 
 function DonorPortal({ pledges, setPledges }: { pledges: Pledge[]; setPledges: React.Dispatch<React.SetStateAction<Pledge[]>> }) {
-  const [tier, setTier] = useState<Tier>(TIERS[0]);
+  const [tier, setTier] = useState<Tier>(TIERS[0]!);
   const [company, setCompany] = useState('');
   const [taxId, setTaxId] = useState('');
-  const [amount, setAmount] = useState<string>(String(TIERS[0].min));
+  const [amount, setAmount] = useState<string>(String(TIERS[0]!.min));
   const [message, setMessage] = useState('');
   const [processing, setProcessing] = useState(false);
   const [done, setDone] = useState(false);
