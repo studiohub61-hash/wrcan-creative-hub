@@ -1,16 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Activity, CircleDot, Film, Home, MessageCircle, User, Briefcase } from "lucide-react";
+import { Radio, Home, MessageCircle, User, Briefcase } from "lucide-react";
 import type { ReactNode } from "react";
 import { useUnreadCount, useControlAccess } from "@/hooks/useBadges";
 import logoUrl from "@/assets/wrcan-logo.png";
 
 const NAV = [
-  { to: "/", label: "Empire", icon: Home },
+  { to: "/", label: "Home", icon: Home },
   { to: "/jobs", label: "Jobs", icon: Briefcase },
-  { to: "/reels", label: "Reels", icon: Film },
-  { to: "/status", label: "Status", icon: CircleDot },
+  { to: "/media-studio", label: "Media", icon: Radio },
   { to: "/chat", label: "Chat", icon: MessageCircle },
-  { to: "/control-room", label: "Control", icon: Activity },
   { to: "/profile", label: "Profile", icon: User },
 ];
 
@@ -30,7 +28,8 @@ export function Shell({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const unread = useUnreadCount();
   const { allowed: canControl } = useControlAccess();
-  const nav = NAV.filter((n) => n.to !== "/control-room" || canControl);
+  const nav = NAV;
+  void canControl;
 
   return (
     <div className="gold-pattern relative min-h-screen">

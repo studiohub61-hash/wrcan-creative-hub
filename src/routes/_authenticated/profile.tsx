@@ -4,6 +4,9 @@ import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Shell } from "@/components/Shell";
+import { Link } from "@tanstack/react-router";
+import { UatPanel } from "@/components/UatPanel";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar } from "@/components/Avatar";
 import { Field, Plate, RoseButton, areaClass, inputClass } from "@/components/EmpireUI";
 import { supabase } from "@/integrations/supabase/client";
@@ -243,6 +246,7 @@ function ProfilePage() {
 
   return (
     <Shell title="Registration Portal" subtitle="Your WRCAN dossier">
+      <ModeSwitch />
       <form onSubmit={save} className="space-y-5 pb-6">
         <Plate className="flex items-center gap-4">
           <input
@@ -559,6 +563,34 @@ function ProfilePage() {
           </RoseButton>
         </div>
       </form>
+      <Accordion type="single" collapsible className="mb-8 rounded-xl border border-border bg-card/60 px-4">
+        <AccordionItem value="dev" className="border-none">
+          <AccordionTrigger className="text-sm">Developer Testing Tools</AccordionTrigger>
+          <AccordionContent><UatPanel /></AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </Shell>
+  );
+}
+
+function ModeSwitch() {
+  const [mode, setMode] = useState<"candidate" | "recruiter">("candidate");
+  return (
+    <div className="mb-5">
+      <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-card p-1.5">
+        {(["candidate", "recruiter"] as const).map((m) => (
+          <button key={m} type="button" onClick={() => setMode(m)} className={`rounded-lg py-2.5 text-sm font-semibold ${mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+            {m === "candidate" ? "Candidate Mode" : "Recruiter Mode"}
+          </button>
+        ))}
+      </div>
+      {mode === "recruiter" ? (
+        <div className="mt-3 rounded-xl border border-primary/40 bg-card p-4 text-center">
+          <p className="text-sm font-semibold">Recruiter tools</p>
+          <p className="mt-1 text-xs text-muted-foreground">Post vacancies and review matched candidates.</p>
+          <Link to="/jobs" className="mt-3 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">Post a vacancy</Link>
+        </div>
+      ) : null}
+    </div>
   );
 }
