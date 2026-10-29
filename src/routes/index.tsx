@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Activity,
+  ArrowUpRight,
   Award,
   Briefcase,
   CircleDot,
   Film,
   GraduationCap,
+  Handshake,
   MessageCircle,
   Radio,
   UserRound,
@@ -15,7 +17,6 @@ import {
 import { Medallion } from "@/components/Medallion";
 import { Shell } from "@/components/Shell";
 import { SmartStartButton } from "@/components/SmartStartButton";
-import { PromotionsHubSection } from "@/components/PromotionsHub";
 import { RoseButton } from "@/components/EmpireUI";
 import { useControlAccess } from "@/hooks/useBadges";
 import { useAuth } from "@/hooks/useAuth";
@@ -103,13 +104,23 @@ function Index() {
         </p>
       ) : null}
 
-      <div className="mb-8 rounded-2xl border border-primary/30 bg-card/60 p-3 shadow-sm sm:p-5">
-        <div className="mb-4 text-center">
-          <p className="text-xs font-semibold tracking-widest text-primary uppercase">Promotions & Partnerships Hub</p>
-          <p className="text-xs text-muted-foreground">Promoters · Donors · Sponsors</p>
-        </div>
-        <PromotionsHubSection />
-      </div>
+      <Link
+        to="/promotions"
+        className="group mb-8 flex items-center gap-4 rounded-2xl border border-primary/40 bg-card/70 px-4 py-4 shadow-sm transition-all hover:border-primary/70 hover:bg-accent/40 active:scale-[0.99] sm:px-5"
+      >
+        <span className="rose-metal flex size-12 shrink-0 items-center justify-center rounded-full">
+          <Handshake className="size-6 text-primary-foreground" />
+        </span>
+        <span className="flex-1 text-left">
+          <span className="block font-display text-lg leading-tight text-primary">
+            Promotions &amp; Partnerships Hub
+          </span>
+          <span className="block text-xs text-muted-foreground">
+            Promoter dashboard · Donor &amp; sponsor portal
+          </span>
+        </span>
+        <ArrowUpRight className="size-5 shrink-0 text-primary transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+      </Link>
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-6 pb-6">
         {tiles.map((t) =>
