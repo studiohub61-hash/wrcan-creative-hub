@@ -78,16 +78,20 @@ export function PromotionsHubSection() {
   return (
     <section aria-label="Promotions & Partnerships Hub">
       {/* master toggle */}
-      <div className="mb-5 grid grid-cols-2 gap-2 rounded-xl border border-border bg-card p-1.5">
+      <div className="mb-5 grid grid-cols-2 gap-3">
         {([['promoter', 'Promoter Dashboard', Briefcase], ['donor', 'Donor & Sponsor Portal', HeartHandshake]] as const).map(([key, label, Icon]) => (
           <button
             key={key}
+            type="button"
+            aria-pressed={side === key}
             onClick={() => setSide(key)}
-            className={`flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm font-semibold transition-colors ${
-              side === key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+            className={`flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 text-sm font-bold shadow-sm transition-all active:scale-[0.98] ${
+              side === key
+                ? 'border-primary bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30 ring-offset-2 ring-offset-background'
+                : 'border-border bg-card text-foreground hover:border-primary/60 hover:bg-accent'
             }`}
           >
-            <Icon className="size-4" /> {label}
+            <Icon className="size-5 shrink-0" /> <span className="text-center leading-tight">{label}</span>
           </button>
         ))}
       </div>
