@@ -1,10 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Shell } from "@/components/Shell";
-import { Link } from "@tanstack/react-router";
 import { UatPanel } from "@/components/UatPanel";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar } from "@/components/Avatar";
