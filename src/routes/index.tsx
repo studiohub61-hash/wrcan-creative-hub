@@ -15,7 +15,6 @@ import {
 import { Medallion } from "@/components/Medallion";
 import { Shell } from "@/components/Shell";
 import { SmartStartButton } from "@/components/SmartStartButton";
-import { UatPanel } from "@/components/UatPanel";
 import { PromotionsHubSection } from "@/components/PromotionsHub";
 import { RoseButton } from "@/components/EmpireUI";
 import { useControlAccess } from "@/hooks/useBadges";
@@ -68,6 +67,25 @@ function Index() {
 
   return (
     <Shell title="Build an Empire" subtitle="WRCAN Specialists">
+      <div className="-mx-5 mb-6 flex gap-4 overflow-x-auto px-5 pb-1" aria-label="Stories">
+        {[
+          { to: "/reels", label: "Talent Reels", icon: Film },
+          { to: "/status", label: "Status", icon: CircleDot },
+          { to: "/live-studio", label: "Live", icon: Activity },
+          { to: "/training", label: "Training", icon: GraduationCap },
+          { to: "/certificates", label: "Certificates", icon: Award },
+        ].map(({ to, label, icon: Icon }) => (
+          <Link key={label} to={to} className="flex shrink-0 flex-col items-center gap-1.5">
+            <span className="rounded-full bg-gradient-to-tr from-primary via-accent to-primary p-[2px]">
+              <span className="flex size-16 items-center justify-center rounded-full border-2 border-background bg-card">
+                <Icon className="size-6 text-primary" />
+              </span>
+            </span>
+            <span className="text-[0.65rem] tracking-wide text-muted-foreground">{label}</span>
+          </Link>
+        ))}
+      </div>
+
       {!loading && !user ? (
         <div className="mb-6 text-center">
           <p className="mb-3 text-sm text-muted-foreground">
@@ -99,7 +117,6 @@ function Index() {
         )}
       </div>
 
-      <UatPanel />
     </Shell>
   );
 }

@@ -1,4 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import {
   Award, BadgeCheck, Briefcase, Building2, CheckCircle2, Clock3, Crown,
   FileUp, Gem, Handshake, HeartHandshake, Loader2, Medal, Sparkles, Star,
@@ -131,6 +133,7 @@ function PromoterDashboard({ submissions, setSubmissions }: { submissions: Submi
     }, ...s]);
     setEvent(''); setDate(''); setDescription(''); setFiles([]);
     setSaved(true);
+    toast.success('Work submitted for verification', { description: 'It now shows as Pending in your activity log.' });
     setTimeout(() => setSaved(false), 2500);
   };
 
@@ -279,6 +282,7 @@ function DonorPortal({ pledges, setPledges }: { pledges: Pledge[]; setPledges: R
     setTimeout(() => {
       setPledges((p) => [{ id: `p${Date.now()}`, company: company.trim(), tier: tier.name, amount: amt, message: message.trim(), at: new Date().toISOString().slice(0, 10) }, ...p]);
       setProcessing(false); setDone(true);
+      toast.success('Pledge received — thank you!');
       setCompany(''); setTaxId(''); setMessage('');
       setTimeout(() => setDone(false), 3000);
     }, 1200);
@@ -299,6 +303,8 @@ function DonorPortal({ pledges, setPledges }: { pledges: Pledge[]; setPledges: R
           ))}
         </div>
       </section>
+
+      <TestDonation onDonate={(name, amt) => setPledges((p) => [{ id: `p${Date.now()}`, company: name, tier: 'Test Donation', amount: amt, message: 'Simulated donation', at: new Date().toISOString().slice(0, 10) }, ...p])} />
 
       {/* contribution terminal */}
       <section className="rounded-xl border border-border bg-card p-5">
@@ -378,5 +384,55 @@ function DonorPortal({ pledges, setPledges }: { pledges: Pledge[]; setPledges: R
         </div>
       </section>
     </div>
+  );
+}
+
+/* ----------------------------- test donation ----------------------------- */
+
+function TestDonation({ onDonate }: { onDonate: (name: string, amount: number) => void }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [amount, setAmount] = useState('250');
+  const [card, setCard] = useState('4242 4242 4242 4242');
+  const [busy, setBusy] = useState(false);
+  const pay = (e: React.FormEvent) => {
+    e.preventDefault();
+    const amt = Number(amount);
+    if (!name.trim() || !amt || amt <= 0) return;
+    setBusy(true);
+    setTimeout(() => {
+      onDonate(name.trim(), amt);
+      setBusy(false); setOpen(false); setName('');
+      toast.success(`Test donation of ${fmtRand(amt)} successful`, { description: 'Simulation only — no money was charged.' });
+    }, 1200);
+  };
+  const field = 'mt-1 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground';
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button type="button" className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary bg-primary/10 py-3 text-sm font-bold tracking-wide text-primary uppercase hover:bg-primary/20">
+          <HeartHandshake className="size-4" /> Make a test donation
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Test donation</DialogTitle>
+          <DialogDescription>Payment simulation — no real card is charged.</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={pay} className="space-y-3">
+          <label className="block text-xs text-muted-foreground">Your name or company<input value={name} onChange={(e) => setName(e.target.value)} required className={field} /></label>
+          <div className="flex gap-2">
+            {[100, 250, 500, 1000].map((v) => (
+              <button key={v} type="button" onClick={() => setAmount(String(v))} className={`flex-1 rounded-lg border py-2 text-xs font-semibold ${amount === String(v) ? 'border-primary bg-primary/10 text-primary' : 'border-border'}`}>{fmtRand(v)}</button>
+            ))}
+          </div>
+          <label className="block text-xs text-muted-foreground">Amount (R)<input type="number" min={1} value={amount} onChange={(e) => setAmount(e.target.value)} required className={field} /></label>
+          <label className="block text-xs text-muted-foreground">Card number (test)<input value={card} onChange={(e) => setCard(e.target.value)} className={field} /></label>
+          <button type="submit" disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-bold text-primary-foreground uppercase disabled:opacity-60">
+            {busy ? <><Loader2 className="size-4 animate-spin" /> Processing…</> : `Donate ${fmtRand(Number(amount) || 0)}`}
+          </button>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
