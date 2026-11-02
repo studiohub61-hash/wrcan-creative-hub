@@ -8,6 +8,7 @@ import {
   Film,
   GraduationCap,
   Handshake,
+  ShieldCheck,
   MessageCircle,
   Radio,
   UserRound,
@@ -120,6 +121,13 @@ function Index() {
           </span>
         </span>
         <ArrowUpRight className="size-5 shrink-0 text-primary transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+      </Link>
+
+      <RoseButton as-unsupported={undefined} className="hidden" />
+      <Link to="/retention" className="mb-8 flex items-center gap-4 rounded-lg border border-primary/40 bg-card px-4 py-4 transition-colors hover:bg-accent/40">
+        <ShieldCheck className="size-7 shrink-0 text-primary" />
+        <span className="min-w-0 flex-1 font-display text-lg text-primary">Student Retention &amp; Impact Dashboard</span>
+        <ArrowUpRight className="size-5 shrink-0 text-primary" />
       </Link>
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-6 pb-6">
