@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowLeft, GraduationCap, University, TrendingUp, Calculator, ShieldCheck, MapPin, Camera, Download, CheckCircle2, AlertTriangle, Clock3, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/wrcan-logo.png";
@@ -33,8 +33,9 @@ function RetentionPage() {
   const [notice, setNotice] = useState("");
   const [evidence, setEvidence] = useState<Evidence[]>([]);
   const [fileKey, setFileKey] = useState(0);
+  const savedUrls = useRef<string[]>([]);
   useEffect(() => () => { if (photo) URL.revokeObjectURL(photo); }, [photo]);
-  useEffect(() => () => { evidence.forEach(e => URL.revokeObjectURL(e.photo)); }, [evidence]);
+  useEffect(() => () => { savedUrls.current.forEach(url => URL.revokeObjectURL(url)); }, []);
   const result = calculateRetention(30, 28, national, cost);
   const filtered = filterStudents(risk, query);
 
@@ -51,7 +52,9 @@ function RetentionPage() {
     if (!photo || !note.trim()) return;
     // A fresh URL keeps the submitted photo separate from the form's cleanup lifecycle.
     fetch(photo).then(response => response.blob()).then(blob => {
-      setEvidence(current => [{ id: crypto.randomUUID(), student, note: note.trim(), timestamp: new Date().toISOString(), gps, photo: URL.createObjectURL(blob) }, ...current]);
+      const savedPhoto = URL.createObjectURL(blob);
+      savedUrls.current.push(savedPhoto);
+      setEvidence(current => [{ id: crypto.randomUUID(), student, note: note.trim(), timestamp: new Date().toISOString(), gps, photo: savedPhoto }, ...current]);
       setPhoto(""); setNote(""); setGps("Not captured"); setFileKey(v => v + 1);
       setNotice("Intervention added to this session. It is not uploaded and clears when this page closes.");
     }).catch(() => setNotice("The photo could not be read. Please select it again."));

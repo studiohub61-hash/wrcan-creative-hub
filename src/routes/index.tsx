@@ -19,6 +19,7 @@ import { Medallion } from "@/components/Medallion";
 import { Shell } from "@/components/Shell";
 import { SmartStartButton } from "@/components/SmartStartButton";
 import { RoseButton } from "@/components/EmpireUI";
+import { Button } from "@/components/ui/button";
 import { useControlAccess } from "@/hooks/useBadges";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -123,12 +124,13 @@ function Index() {
         <ArrowUpRight className="size-5 shrink-0 text-primary transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
       </Link>
 
-      <RoseButton as-unsupported={undefined} className="hidden" />
-      <Link to="/retention" className="mb-8 flex items-center gap-4 rounded-lg border border-primary/40 bg-card px-4 py-4 transition-colors hover:bg-accent/40">
+      <Button asChild variant="outline" className="mb-8 h-auto w-full whitespace-normal rounded-lg px-4 py-4">
+      <Link to="/retention">
         <ShieldCheck className="size-7 shrink-0 text-primary" />
         <span className="min-w-0 flex-1 font-display text-lg text-primary">Student Retention &amp; Impact Dashboard</span>
         <ArrowUpRight className="size-5 shrink-0 text-primary" />
       </Link>
+      </Button>
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-6 pb-6">
         {tiles.map((t) =>
