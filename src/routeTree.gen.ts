@@ -21,6 +21,7 @@ import { Route as MediaStudioRouteImport } from './routes/media-studio'
 import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as PromotionsRouteImport } from './routes/promotions'
 import { Route as ReelsRouteImport } from './routes/reels'
+import { Route as RetentionRouteImport } from './routes/retention'
 import { Route as SmartstartRouteImport } from './routes/smartstart'
 import { Route as TrainingRouteImport } from './routes/training'
 import { Route as Ward50RouteImport } from './routes/ward50'
@@ -94,6 +95,11 @@ const PromotionsRoute = PromotionsRouteImport.update({
 const ReelsRoute = ReelsRouteImport.update({
   id: '/reels',
   path: '/reels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RetentionRoute = RetentionRouteImport.update({
+  id: '/retention',
+  path: '/retention',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SmartstartRoute = SmartstartRouteImport.update({
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/offline': typeof OfflineRoute
   '/promotions': typeof PromotionsRoute
   '/reels': typeof ReelsRoute
+  '/retention': typeof RetentionRoute
   '/smartstart': typeof SmartstartRoute
   '/training': typeof TrainingRouteWithChildren
   '/ward50': typeof Ward50Route
@@ -215,6 +222,7 @@ export interface FileRoutesByTo {
   '/offline': typeof OfflineRoute
   '/promotions': typeof PromotionsRoute
   '/reels': typeof ReelsRoute
+  '/retention': typeof RetentionRoute
   '/smartstart': typeof SmartstartRoute
   '/training': typeof TrainingRouteWithChildren
   '/ward50': typeof Ward50Route
@@ -245,6 +253,7 @@ export interface FileRoutesById {
   '/offline': typeof OfflineRoute
   '/promotions': typeof PromotionsRoute
   '/reels': typeof ReelsRoute
+  '/retention': typeof RetentionRoute
   '/smartstart': typeof SmartstartRoute
   '/training': typeof TrainingRouteWithChildren
   '/ward50': typeof Ward50Route
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
     | '/offline'
     | '/promotions'
     | '/reels'
+    | '/retention'
     | '/smartstart'
     | '/training'
     | '/ward50'
@@ -303,6 +313,7 @@ export interface FileRouteTypes {
     | '/offline'
     | '/promotions'
     | '/reels'
+    | '/retention'
     | '/smartstart'
     | '/training'
     | '/ward50'
@@ -332,6 +343,7 @@ export interface FileRouteTypes {
     | '/offline'
     | '/promotions'
     | '/reels'
+    | '/retention'
     | '/smartstart'
     | '/training'
     | '/ward50'
@@ -362,6 +374,7 @@ export interface RootRouteChildren {
   OfflineRoute: typeof OfflineRoute
   PromotionsRoute: typeof PromotionsRoute
   ReelsRoute: typeof ReelsRoute
+  RetentionRoute: typeof RetentionRoute
   SmartstartRoute: typeof SmartstartRoute
   TrainingRoute: typeof TrainingRouteWithChildren
   Ward50Route: typeof Ward50Route
@@ -451,6 +464,13 @@ declare module '@tanstack/react-router' {
       path: '/reels'
       fullPath: '/reels'
       preLoaderRoute: typeof ReelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/retention': {
+      id: '/retention'
+      path: '/retention'
+      fullPath: '/retention'
+      preLoaderRoute: typeof RetentionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/smartstart': {
@@ -625,6 +645,7 @@ const rootRouteChildren: RootRouteChildren = {
   OfflineRoute: OfflineRoute,
   PromotionsRoute: PromotionsRoute,
   ReelsRoute: ReelsRoute,
+  RetentionRoute: RetentionRoute,
   SmartstartRoute: SmartstartRoute,
   TrainingRoute: TrainingRouteWithChildren,
   Ward50Route: Ward50Route,

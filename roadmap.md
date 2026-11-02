@@ -11,3 +11,5 @@
 - [x] Verify infrastructure calculations, photo evidence, saving and saved audit review.
 - [ ] Add SmartStart camera attendance with teacher/child modes and local logs.
 - [ ] Test attendance capture, camera errors and persistence.
+- [ ] Add a button-accessible sample retention dashboard, calculator, student risk view, intervention evidence and donor CSV report.
+- [ ] Test retention calculations and the dashboard's interactive flow.
