@@ -34,6 +34,8 @@ import { Route as AuthenticatedControlRoomRouteImport } from './routes/_authenti
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedSessionsRouteImport } from './routes/_authenticated/sessions'
 import { Route as AuthenticatedStatusRouteImport } from './routes/_authenticated/status'
+import { Route as AdminStudentManagementRouteImport } from './routes/admin.student-management'
+import { Route as DashboardStudentImpactRouteImport } from './routes/dashboard.student-impact'
 import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 import { Route as TrainingModuleIdRouteImport } from './routes/training.$moduleId'
 import { Route as AuthenticatedEcdFeatureRouteImport } from './routes/_authenticated/ecd.$feature'
@@ -165,6 +167,16 @@ const AuthenticatedStatusRoute = AuthenticatedStatusRouteImport.update({
   path: '/status',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AdminStudentManagementRoute = AdminStudentManagementRouteImport.update({
+  id: '/admin/student-management',
+  path: '/admin/student-management',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardStudentImpactRoute = DashboardStudentImpactRouteImport.update({
+  id: '/dashboard/student-impact',
+  path: '/dashboard/student-impact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const JobsJobIdRoute = JobsJobIdRouteImport.update({
   id: '/$jobId',
   path: '/$jobId',
@@ -206,6 +218,8 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/sessions': typeof AuthenticatedSessionsRoute
   '/status': typeof AuthenticatedStatusRoute
+  '/admin/student-management': typeof AdminStudentManagementRoute
+  '/dashboard/student-impact': typeof DashboardStudentImpactRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/training/$moduleId': typeof TrainingModuleIdRoute
   '/ecd/$feature': typeof AuthenticatedEcdFeatureRoute
@@ -235,6 +249,8 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/sessions': typeof AuthenticatedSessionsRoute
   '/status': typeof AuthenticatedStatusRoute
+  '/admin/student-management': typeof AdminStudentManagementRoute
+  '/dashboard/student-impact': typeof DashboardStudentImpactRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/training/$moduleId': typeof TrainingModuleIdRoute
   '/ecd/$feature': typeof AuthenticatedEcdFeatureRoute
@@ -266,6 +282,8 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/sessions': typeof AuthenticatedSessionsRoute
   '/_authenticated/status': typeof AuthenticatedStatusRoute
+  '/admin/student-management': typeof AdminStudentManagementRoute
+  '/dashboard/student-impact': typeof DashboardStudentImpactRoute
   '/jobs/$jobId': typeof JobsJobIdRoute
   '/training/$moduleId': typeof TrainingModuleIdRoute
   '/_authenticated/ecd/$feature': typeof AuthenticatedEcdFeatureRoute
@@ -297,6 +315,8 @@ export interface FileRouteTypes {
     | '/profile'
     | '/sessions'
     | '/status'
+    | '/admin/student-management'
+    | '/dashboard/student-impact'
     | '/jobs/$jobId'
     | '/training/$moduleId'
     | '/ecd/$feature'
@@ -326,6 +346,8 @@ export interface FileRouteTypes {
     | '/profile'
     | '/sessions'
     | '/status'
+    | '/admin/student-management'
+    | '/dashboard/student-impact'
     | '/jobs/$jobId'
     | '/training/$moduleId'
     | '/ecd/$feature'
@@ -356,6 +378,8 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/sessions'
     | '/_authenticated/status'
+    | '/admin/student-management'
+    | '/dashboard/student-impact'
     | '/jobs/$jobId'
     | '/training/$moduleId'
     | '/_authenticated/ecd/$feature'
@@ -378,6 +402,8 @@ export interface RootRouteChildren {
   SmartstartRoute: typeof SmartstartRoute
   TrainingRoute: typeof TrainingRouteWithChildren
   Ward50Route: typeof Ward50Route
+  AdminStudentManagementRoute: typeof AdminStudentManagementRoute
+  DashboardStudentImpactRoute: typeof DashboardStudentImpactRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -557,6 +583,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatusRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/admin/student-management': {
+      id: '/admin/student-management'
+      path: '/admin/student-management'
+      fullPath: '/admin/student-management'
+      preLoaderRoute: typeof AdminStudentManagementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/student-impact': {
+      id: '/dashboard/student-impact'
+      path: '/dashboard/student-impact'
+      fullPath: '/dashboard/student-impact'
+      preLoaderRoute: typeof DashboardStudentImpactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/jobs/$jobId': {
       id: '/jobs/$jobId'
       path: '/$jobId'
@@ -649,6 +689,8 @@ const rootRouteChildren: RootRouteChildren = {
   SmartstartRoute: SmartstartRoute,
   TrainingRoute: TrainingRouteWithChildren,
   Ward50Route: Ward50Route,
+  AdminStudentManagementRoute: AdminStudentManagementRoute,
+  DashboardStudentImpactRoute: DashboardStudentImpactRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
