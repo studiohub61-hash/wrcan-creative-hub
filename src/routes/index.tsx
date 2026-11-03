@@ -132,6 +132,11 @@ function Index() {
       </Link>
       </Button>
 
+      <div className="-mt-5 mb-8 grid grid-cols-2 gap-3">
+        <Button asChild variant="outline" className="h-auto whitespace-normal py-3"><Link to="/admin/student-management">Student Data Management</Link></Button>
+        <Button asChild variant="outline" className="h-auto whitespace-normal py-3"><Link to="/dashboard/student-impact">Student Impact Dashboard</Link></Button>
+      </div>
+
       <div className="grid grid-cols-2 gap-x-4 gap-y-6 pb-6">
         {tiles.map((t) =>
           t.to === "/smartstart" ? <SmartStartButton key={t.label} /> : <Medallion key={t.label} {...t} />,
