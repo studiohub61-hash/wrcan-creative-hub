@@ -26,7 +26,7 @@ function AdminPage() {
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim()) return toast.error("Student name is required");
+    if (!form.name.trim()) { toast.error("Student name is required"); return; }
     const editing = !!form.id;
     studentStore.upsert({ ...form, id: form.id || `s${Date.now()}`, attendance: clamp(form.attendance), pace: clamp(form.pace) });
     toast.success(editing ? "Student updated" : "Student added");
