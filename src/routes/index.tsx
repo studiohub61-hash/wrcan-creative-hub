@@ -5,6 +5,7 @@ import {
   Award,
   Briefcase,
   CircleDot,
+  Clock3,
   Film,
   GraduationCap,
   Handshake,
@@ -48,6 +49,7 @@ export const Route = createFileRoute("/")({
 const TILES = [
   { to: "/campaign", label: "Campaign", icon: Award, caption: "Evidence machine" },
   { to: "/smartstart", label: "SmartStart", icon: Users, caption: "Learning hub" },
+  { to: "/attendance", label: "Registration & Clock-In", icon: Clock3, caption: "People & attendance" },
   { to: "/training", label: "Training", icon: GraduationCap, caption: "YES · SETA · UNICEF" },
   { to: "/media-studio", label: "Media Studio", icon: Radio, caption: "Radio · video calls" },
   { to: "/live-studio", label: "Live Studio", icon: Activity, caption: "Broadcast control room" },
@@ -139,7 +141,7 @@ function Index() {
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-6 pb-6">
         {tiles.map((t) =>
-          t.to === "/smartstart" ? <SmartStartButton key={t.label} /> : <Medallion key={t.label} {...t} />,
+          t.to === "/smartstart" ? <SmartStartButton key={t.label} /> : t.to === "/attendance" ? <Button asChild key={t.label} className="attendance-theme h-auto min-h-32 whitespace-normal rounded-lg border border-border bg-primary px-4 py-5 text-primary-foreground hover:bg-primary/90"><Link to="/attendance" className="flex flex-col gap-3 text-center"><Clock3 className="size-8 shrink-0" /><span className="font-sans text-base font-semibold">Registration &amp; Clock-In</span></Link></Button> : <Medallion key={t.label} {...t} />,
         )}
       </div>
 
