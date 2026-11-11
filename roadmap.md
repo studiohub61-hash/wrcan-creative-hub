@@ -13,3 +13,6 @@
 - [ ] Test attendance capture, camera errors and persistence.
 - [ ] Add a button-accessible sample retention dashboard, calculator, student risk view, intervention evidence and donor CSV report.
 - [ ] Test retention calculations and the dashboard's interactive flow.
+- [ ] Add the Home Registration & Clock-In button and four attendance tabs.
+- [ ] Add device-local person registration, reference photos, custom shifts, and synced profile statistics.
+- [ ] Verify registration, role dropdowns, punctuality, clock-ins, and reload persistence.
