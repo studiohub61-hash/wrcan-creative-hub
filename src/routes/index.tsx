@@ -47,9 +47,9 @@ export const Route = createFileRoute("/")({
 });
 
 const TILES = [
-  { to: "/campaign", label: "Campaign", icon: Award, caption: "Evidence machine" },
   { to: "/smartstart", label: "SmartStart", icon: Users, caption: "Learning hub" },
   { to: "/attendance", label: "Registration & Clock-In", icon: Clock3, caption: "People & attendance" },
+  { to: "/campaign", label: "Campaign", icon: Award, caption: "Evidence machine" },
   { to: "/training", label: "Training", icon: GraduationCap, caption: "YES · SETA · UNICEF" },
   { to: "/media-studio", label: "Media Studio", icon: Radio, caption: "Radio · video calls" },
   { to: "/live-studio", label: "Live Studio", icon: Activity, caption: "Broadcast control room" },

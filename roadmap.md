@@ -9,10 +9,10 @@
 - [ ] Verify new flows, permissions, and offline behavior.
 - [x] Connect the infrastructure audit to SmartStart and its existing audit page.
 - [x] Verify infrastructure calculations, photo evidence, saving and saved audit review.
-- [ ] Add SmartStart camera attendance with teacher/child modes and local logs.
+- [x] Add SmartStart camera attendance with teacher/child modes and local logs.
 - [ ] Test attendance capture, camera errors and persistence.
 - [ ] Add a button-accessible sample retention dashboard, calculator, student risk view, intervention evidence and donor CSV report.
 - [ ] Test retention calculations and the dashboard's interactive flow.
-- [ ] Add the Home Registration & Clock-In button and four attendance tabs.
-- [ ] Add device-local person registration, reference photos, custom shifts, and synced profile statistics.
-- [ ] Verify registration, role dropdowns, punctuality, clock-ins, and reload persistence.
+- [x] Add the Home Registration & Clock-In button and four attendance tabs.
+- [x] Add device-local person registration, reference photos, custom shifts, and synced profile statistics.
+- [x] Verify registration, role dropdowns, punctuality, clock-ins, and reload persistence.
