@@ -57,6 +57,13 @@
       "when": 1794488775031,
       "tag": "0007_attendance_realtime",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794489493091,
+      "tag": "0008_tighten_access_rules",
+      "breakpoints": true
     }
   ]
 }

@@ -1540,6 +1540,10 @@ export type Database = {
       join_community: { Args: { _conversation_id: string }; Returns: string }
       member_achievements: { Args: { _user_id: string }; Returns: Json }
       my_unread_count: { Args: never; Returns: number }
+      shares_conversation: {
+        Args: { _a: string; _b: string }
+        Returns: boolean
+      }
       start_direct_chat: {
         Args: { _other_id: string; _title?: string }
         Returns: string
