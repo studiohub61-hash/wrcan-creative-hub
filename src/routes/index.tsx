@@ -1,3 +1,4 @@
+import { LiveSiteActivity } from "@/components/LiveActivity";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Activity,
@@ -72,6 +73,7 @@ function Index() {
 
   return (
     <Shell title="Build an Empire" subtitle="WRCAN Specialists">
+      <div className="mb-6"><LiveSiteActivity /></div>
       <div className="-mx-5 mb-6 flex gap-4 overflow-x-auto px-5 pb-1" aria-label="Stories">
         {[
           { to: "/reels", label: "Talent Reels", icon: Film },

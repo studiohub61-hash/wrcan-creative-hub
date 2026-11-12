@@ -4,6 +4,8 @@ import { ArrowLeft, Camera, CameraOff, CheckCircle2, Clock3, GraduationCap, LogI
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { NotificationBell, LiveSiteActivity } from "@/components/LiveActivity";
+import { useRealtime } from "@/hooks/useRealtime";
 import { AttendanceRegistration, AttendanceProfileCard } from "@/components/AttendanceRegistration";
 import { ATTENDANCE_KEY, PEOPLE_KEY, ATTENDANCE_ROLES, samplePeople, parsePeople, isAttendanceRole, punctualityAt, parseAttendance, type AttendancePerson, type AttendanceAction, type AttendanceEntry, type AttendanceRole } from "@/lib/attendance";
 
@@ -34,7 +36,11 @@ function AttendancePage() {
   const stream = useRef<MediaStream | null>(null);
   const mounted = useRef(false);
   const lock = useRef(false);
-  const people = [...samplePeople(), ...registered];
+  const rt = useRealtime();
+  const cloudPeople: AttendancePerson[] = rt.participants.filter(p => isAttendanceRole(p.role) && !registered.some(r => r.id === p.id)).map(p => ({ id: p.id, name: p.name, role: p.role as AttendanceRole, identityNumber: "", contact: "", site: p.site, photo: p.photo_data, startTime: p.start_time, endTime: p.end_time }));
+  const allEntries: AttendanceEntry[] = [...entries, ...rt.logs.filter(l => isAttendanceRole(l.role) && !entries.some(e => e.id === l.id)).map(l => ({ id: l.id, personId: l.participant_id, name: l.name, role: l.role as AttendanceRole, action: (l.action === "Out" ? "Out" : "In") as AttendanceAction, timestamp: l.created_at, photo: l.photo_data, ...(l.punctuality === "Late" || l.punctuality === "On Time" ? { punctuality: l.punctuality } : {}) }))].sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
+  const allRegistered = [...registered, ...cloudPeople];
+  const people = [...samplePeople(), ...allRegistered];
   const person = people.find(p => p.role === role && p.id === selected);
 
   useEffect(() => {
@@ -56,6 +62,7 @@ function AttendancePage() {
     try {
       const next = [nextPerson, ...parsePeople(localStorage.getItem(PEOPLE_KEY))];
       localStorage.setItem(PEOPLE_KEY, JSON.stringify(next));
+      if (rt.live) void rt.register({ id: nextPerson.id, name: nextPerson.name, role: nextPerson.role, site: nextPerson.site, start_time: nextPerson.startTime, end_time: nextPerson.endTime, photo_data: nextPerson.photo });
       setRegistered(next); setRole(nextPerson.role); setSelected(nextPerson.id);
       setNotice({ error: false, text: `${nextPerson.name} registered. Their profile is ready in ${nextPerson.role} Mode.` });
       return true;
@@ -120,6 +127,7 @@ function AttendancePage() {
     try {
       const next = [entry, ...parseAttendance(localStorage.getItem(ATTENDANCE_KEY))];
       localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(next)); setEntries(next);
+      if (rt.live) void rt.register({ id: person.id, name: person.name, role: person.role, site: person.site, start_time: person.startTime, end_time: person.endTime, photo_data: person.photo }).then(() => rt.logClock({ id: entry.id, participant_id: person.id, name: person.name, role: person.role, action, punctuality: entry.punctuality ?? null, photo_data: entry.photo, created_at: entry.timestamp }));
       setNotice({ error: false, text: `${person.name} clocked ${action === "In" ? "in" : "out"}${entry.punctuality ? ` · ${entry.punctuality}` : ""}. Attendance saved on this device.` });
     } catch { setNotice({ error: true, text: "Attendance was not saved. Device storage is full or blocked; free some space and try again." }); }
   }
@@ -133,23 +141,23 @@ function AttendancePage() {
   return <div className="attendance-theme min-h-screen bg-background">
     <header className="border-b border-border bg-card"><div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-5 py-5">
       <div className="flex gap-4"><Link to="/" className="inline-flex items-center gap-2 text-sm text-primary"><ArrowLeft className="size-4" /> Home</Link><Link to="/smartstart" className="text-sm text-primary">SmartStart</Link></div>
-      <span className="flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="size-4" /> Device-only records</span>
+      <div className="flex items-center gap-3"><span className="flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="size-4" /> {rt.live ? "Live sync on" : "Device-only records"}</span><NotificationBell /></div>
     </div></header>
     <main className="mx-auto max-w-5xl px-5 py-8">
       <div className="mb-7 flex items-center gap-4"><div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-secondary text-secondary-foreground"><Users className="size-6" /></div><div className="min-w-0"><h1 className="font-sans text-2xl font-bold sm:text-3xl">Registration &amp; Clock-In</h1><p className="mt-1 text-sm text-muted-foreground">SmartStart · Daily register · Johannesburg time</p></div></div>
-      <Tabs value={tab} onValueChange={value => { if (busy) return; stopCamera(); setNotice(null); if (value === "register") { setTab(value); return; } if (isAttendanceRole(value)) { setTab(value); setRole(value); setSelected(people.find(p => p.role === value && p.id === selected)?.id ?? registered.find(p => p.role === value)?.id ?? people.find(p => p.role === value)?.id ?? ""); } }}>
+      <Tabs value={tab} onValueChange={value => { if (busy) return; stopCamera(); setNotice(null); if (value === "register") { setTab(value); return; } if (isAttendanceRole(value)) { setTab(value); setRole(value); setSelected(people.find(p => p.role === value && p.id === selected)?.id ?? allRegistered.find(p => p.role === value)?.id ?? people.find(p => p.role === value)?.id ?? ""); } }}>
         <TabsList className="mb-7 grid h-auto w-full grid-cols-2 gap-1 sm:grid-cols-4">{ATTENDANCE_ROLES.map(r => <TabsTrigger disabled={busy} key={r} value={r} className="min-h-12 whitespace-normal px-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">{r} Mode</TabsTrigger>)}<TabsTrigger disabled={busy} value="register" className="min-h-12 whitespace-normal px-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">+ Register People</TabsTrigger></TabsList>
       </Tabs>
       {notice && <div role="alert" className={`mb-5 flex gap-2 rounded-md border p-3 text-sm ${notice.error ? "border-destructive/40 bg-destructive/5 text-destructive" : "border-primary/30 bg-accent text-primary"}`}>{notice.error ? <AlertCircle className="size-4 shrink-0" /> : <CheckCircle2 className="size-4 shrink-0" />}<span>{notice.text}</span></div>}
       <div className="grid gap-7 md:grid-cols-[1fr_1.2fr]">
-        {tab === "register" ? <AttendanceRegistration onSave={savePerson} people={registered} entries={entries} photo={referencePhoto} onPhoto={setReferencePhoto} onCamera={() => void useCamera(undefined, true)} busy={busy} loaded={loaded} /> :
+        {tab === "register" ? <AttendanceRegistration onSave={savePerson} people={allRegistered} allEntries={allEntries} photo={referencePhoto} onPhoto={setReferencePhoto} onCamera={() => void useCamera(undefined, true)} busy={busy} loaded={loaded} /> :
         <section className="min-w-0 py-2">
           <h2 className="font-sans text-xl font-semibold">{role} register</h2>
           <div className="my-5"><label id="attendance-person" className="mb-2 block text-sm font-medium">{role} name</label>
             <Select value={selected} onValueChange={setSelected} disabled={busy || !people.some(p => p.role === role)}><SelectTrigger aria-labelledby="attendance-person" className="h-12 bg-card"><SelectValue placeholder="No people registered" /></SelectTrigger><SelectContent className="attendance-theme">{people.filter(p => p.role === role).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
           </div>
-          {person && <AttendanceProfileCard person={person} entries={entries} />}
-          <div className="flex items-center gap-2 border-y border-border py-4 text-sm"><Clock3 className="size-4 text-primary" /><span>Last activity: {entries.find(e => e.personId === person?.id || (!e.personId && e.role === role && e.name === person?.name))?.action ?? "Not recorded"}</span></div>
+          {person && <AttendanceProfileCard person={person} allEntries={allEntries} />}
+          <div className="flex items-center gap-2 border-y border-border py-4 text-sm"><Clock3 className="size-4 text-primary" /><span>Last activity: {allEntries.find(e => e.personId === person?.id || (!e.personId && e.role === role && e.name === person?.name))?.action ?? "Not recorded"}</span></div>
           <div className="mt-6 grid grid-cols-2 gap-3"><Button className="h-12" disabled={busy || !loaded || !person} onClick={() => clock("In")}><LogIn /> Clock In</Button><Button className="h-12" variant="secondary" disabled={busy || !loaded || !person} onClick={() => clock("Out")}><LogOut /> Clock Out</Button></div>
           {busy && <p role="status" className="mt-3 text-sm text-muted-foreground">Waiting for camera…</p>}
         </section>}
@@ -160,8 +168,9 @@ function AttendancePage() {
         </section>
       </div>
       <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Records and photos stay on this device. Sample teacher and child names are included. Obtain consent before saving personal details or children's photos.</p>
-      <section className="mt-10 border-t border-border pt-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="font-sans text-xl font-semibold">Attendance log</h2><span className="text-sm text-muted-foreground">{entries.length} records</span></div>
-        <div className="overflow-x-auto rounded-lg border border-border bg-card"><table className="w-full min-w-[720px] text-left text-sm"><thead className="bg-muted text-muted-foreground"><tr>{["Name", "Role", "Timestamp · SAST", "Action", "Punctuality", "Photo"].map(h => <th key={h} className="px-4 py-3 font-medium">{h}</th>)}</tr></thead><tbody>{entries.map(e => <tr key={e.id} className="border-t border-border"><td className="px-4 py-3 font-medium">{e.name}</td><td className="px-4 py-3">{e.role}</td><td className="px-4 py-3">{new Date(e.timestamp).toLocaleString("en-ZA", { timeZone: "Africa/Johannesburg" })}</td><td className="px-4 py-3"><span className={`rounded px-2 py-1 text-xs font-medium ${e.action === "In" ? "bg-accent text-primary" : "bg-secondary text-secondary-foreground"}`}>{e.action}</span></td><td className={`px-4 py-3 ${e.punctuality === "Late" ? "text-destructive" : "text-primary"}`}>{e.punctuality ?? "—"}</td><td className="px-4 py-2">{e.photo ? <Button variant="ghost" className="h-12 w-16 p-0" aria-label={`View photo of ${e.name} clocked ${e.action.toLowerCase()}`} onClick={() => setPhoto(e)}><img src={e.photo} alt={`${e.name} attendance snapshot`} className="h-12 w-16 rounded object-cover" /></Button> : "—"}</td></tr>)}{!entries.length && <tr><td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">No attendance recorded yet.</td></tr>}</tbody></table></div>
+      <div className="mt-8"><LiveSiteActivity /></div>
+      <section className="mt-10 border-t border-border pt-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="font-sans text-xl font-semibold">Attendance log</h2><span className="text-sm text-muted-foreground">{allEntries.length} records</span></div>
+        <div className="overflow-x-auto rounded-lg border border-border bg-card"><table className="w-full min-w-[720px] text-left text-sm"><thead className="bg-muted text-muted-foreground"><tr>{["Name", "Role", "Timestamp · SAST", "Action", "Punctuality", "Photo"].map(h => <th key={h} className="px-4 py-3 font-medium">{h}</th>)}</tr></thead><tbody>{allEntries.map(e => <tr key={e.id} className="border-t border-border"><td className="px-4 py-3 font-medium">{e.name}</td><td className="px-4 py-3">{e.role}</td><td className="px-4 py-3">{new Date(e.timestamp).toLocaleString("en-ZA", { timeZone: "Africa/Johannesburg" })}</td><td className="px-4 py-3"><span className={`rounded px-2 py-1 text-xs font-medium ${e.action === "In" ? "bg-accent text-primary" : "bg-secondary text-secondary-foreground"}`}>{e.action}</span></td><td className={`px-4 py-3 ${e.punctuality === "Late" ? "text-destructive" : "text-primary"}`}>{e.punctuality ?? "—"}</td><td className="px-4 py-2">{e.photo ? <Button variant="ghost" className="h-12 w-16 p-0" aria-label={`View photo of ${e.name} clocked ${e.action.toLowerCase()}`} onClick={() => setPhoto(e)}><img src={e.photo} alt={`${e.name} attendance snapshot`} className="h-12 w-16 rounded object-cover" /></Button> : "—"}</td></tr>)}{!allEntries.length && <tr><td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">No attendance recorded yet.</td></tr>}</tbody></table></div>
       </section>
     </main>
     {photo && <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 p-5" onClick={() => setPhoto(null)}><section role="dialog" aria-modal="true" aria-label="Attendance photo" className="w-full max-w-md rounded-lg bg-card p-4" onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === "Escape") setPhoto(null); }}><div className="mb-3 flex items-center justify-between gap-2"><h2 className="font-sans font-semibold">{photo.name} · {photo.action}</h2><Button autoFocus size="icon" variant="ghost" aria-label="Close photo" onClick={() => setPhoto(null)}><X /></Button></div><img src={photo.photo} alt={`${photo.name} attendance snapshot`} className="w-full rounded" /><p className="mt-3 text-xs text-muted-foreground">{new Date(photo.timestamp).toLocaleString()}</p></section></div>}
