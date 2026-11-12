@@ -1,3 +1,4 @@
+import { NotificationBell } from "@/components/LiveActivity";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Radio, Home, MessageCircle, User, Briefcase } from "lucide-react";
 import type { ReactNode } from "react";
@@ -36,7 +37,8 @@ export function Shell({
       <div className="absolute inset-0 bg-background/40" aria-hidden />
       <div className="relative mx-auto flex min-h-screen w-full max-w-2xl flex-col">
         {!bare && (
-          <header className="px-5 pt-6 pb-3 text-center">
+          <header className="relative px-5 pt-6 pb-3 text-center">
+            <div className="absolute right-5 top-6"><NotificationBell /></div>
             <Link to="/" className="inline-block">
               <img src={logoUrl} alt="Wanda Recruitment and Catering Agency" className="mx-auto h-20 w-auto" />
             </Link>

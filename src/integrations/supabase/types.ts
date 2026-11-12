@@ -52,6 +52,45 @@ export type Database = {
           },
         ]
       }
+      attendance_logs: {
+        Row: {
+          action: string
+          created_at: string
+          created_by: string
+          gps: string | null
+          id: string
+          name: string
+          participant_id: string
+          photo_data: string
+          punctuality: string | null
+          role: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          created_by?: string
+          gps?: string | null
+          id: string
+          name: string
+          participant_id: string
+          photo_data?: string
+          punctuality?: string | null
+          role: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          created_by?: string
+          gps?: string | null
+          id?: string
+          name?: string
+          participant_id?: string
+          photo_data?: string
+          punctuality?: string | null
+          role?: string
+        }
+        Relationships: []
+      }
       campaign_documents: {
         Row: {
           centre: string
@@ -1027,6 +1066,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      participants: {
+        Row: {
+          created_at: string
+          created_by: string
+          end_time: string
+          id: string
+          name: string
+          photo_data: string
+          role: string
+          site: string
+          start_time: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          end_time?: string
+          id: string
+          name: string
+          photo_data?: string
+          role: string
+          site?: string
+          start_time?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          end_time?: string
+          id?: string
+          name?: string
+          photo_data?: string
+          role?: string
+          site?: string
+          start_time?: string
+          status?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

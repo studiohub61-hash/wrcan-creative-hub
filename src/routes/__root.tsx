@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/hooks/useAuth";
+import { RealtimeProvider } from "@/hooks/useRealtime";
 import { PresenceProvider } from "@/hooks/usePresence";
 import { Toaster } from "@/components/ui/sonner";
 import { BootScreen } from "@/components/BootScreen";
@@ -138,14 +139,14 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <PresenceProvider>
+        <PresenceProvider><RealtimeProvider>
           <BootScreen />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <InstallPrompt />
           <NotificationBalloons />
           <Toaster position="top-center" richColors />
-        </PresenceProvider>
+        </RealtimeProvider></PresenceProvider>
       </AuthProvider>
 
     </QueryClientProvider>
