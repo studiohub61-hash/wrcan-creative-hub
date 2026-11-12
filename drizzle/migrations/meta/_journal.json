@@ -64,6 +64,13 @@
       "when": 1794489493091,
       "tag": "0008_tighten_access_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794489565809,
+      "tag": "0009_tighten_open_policies",
+      "breakpoints": true
     }
   ]
 }
