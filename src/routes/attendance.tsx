@@ -150,13 +150,13 @@ function AttendancePage() {
       </Tabs>
       {notice && <div role="alert" className={`mb-5 flex gap-2 rounded-md border p-3 text-sm ${notice.error ? "border-destructive/40 bg-destructive/5 text-destructive" : "border-primary/30 bg-accent text-primary"}`}>{notice.error ? <AlertCircle className="size-4 shrink-0" /> : <CheckCircle2 className="size-4 shrink-0" />}<span>{notice.text}</span></div>}
       <div className="grid gap-7 md:grid-cols-[1fr_1.2fr]">
-        {tab === "register" ? <AttendanceRegistration onSave={savePerson} people={allRegistered} allEntries={allEntries} photo={referencePhoto} onPhoto={setReferencePhoto} onCamera={() => void useCamera(undefined, true)} busy={busy} loaded={loaded} /> :
+        {tab === "register" ? <AttendanceRegistration onSave={savePerson} people={allRegistered} entries={allEntries} photo={referencePhoto} onPhoto={setReferencePhoto} onCamera={() => void useCamera(undefined, true)} busy={busy} loaded={loaded} /> :
         <section className="min-w-0 py-2">
           <h2 className="font-sans text-xl font-semibold">{role} register</h2>
           <div className="my-5"><label id="attendance-person" className="mb-2 block text-sm font-medium">{role} name</label>
             <Select value={selected} onValueChange={setSelected} disabled={busy || !people.some(p => p.role === role)}><SelectTrigger aria-labelledby="attendance-person" className="h-12 bg-card"><SelectValue placeholder="No people registered" /></SelectTrigger><SelectContent className="attendance-theme">{people.filter(p => p.role === role).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
           </div>
-          {person && <AttendanceProfileCard person={person} allEntries={allEntries} />}
+          {person && <AttendanceProfileCard person={person} entries={allEntries} />}
           <div className="flex items-center gap-2 border-y border-border py-4 text-sm"><Clock3 className="size-4 text-primary" /><span>Last activity: {allEntries.find(e => e.personId === person?.id || (!e.personId && e.role === role && e.name === person?.name))?.action ?? "Not recorded"}</span></div>
           <div className="mt-6 grid grid-cols-2 gap-3"><Button className="h-12" disabled={busy || !loaded || !person} onClick={() => clock("In")}><LogIn /> Clock In</Button><Button className="h-12" variant="secondary" disabled={busy || !loaded || !person} onClick={() => clock("Out")}><LogOut /> Clock Out</Button></div>
           {busy && <p role="status" className="mt-3 text-sm text-muted-foreground">Waiting for camera…</p>}
