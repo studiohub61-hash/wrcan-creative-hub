@@ -143,7 +143,7 @@ function Index() {
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-6 pb-6">
         {tiles.map((t) =>
-          t.to === "/smartstart" ? <SmartStartButton key={t.label} /> : t.to === "/attendance" ? <Button asChild key={t.label} className="attendance-theme h-auto min-h-32 whitespace-normal rounded-lg border border-border bg-primary px-4 py-5 text-primary-foreground hover:bg-primary/90"><Link to="/attendance" className="flex flex-col gap-3 text-center"><Clock3 className="size-8 shrink-0" /><span className="font-sans text-base font-semibold">Registration &amp; Clock-In</span></Link></Button> : <Medallion key={t.label} {...t} />,
+          t.to === "/smartstart" ? <SmartStartButton key={t.label} /> : <Medallion key={t.label} {...t} />,
         )}
       </div>
 
