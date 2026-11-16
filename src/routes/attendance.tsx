@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Camera, CameraOff, CheckCircle2, Clock3, GraduationCap, LogIn, LogOut, ShieldCheck, Users, AlertCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { NotificationBell, LiveSiteActivity } from "@/components/LiveActivity";
 import { useRealtime } from "@/hooks/useRealtime";
+import { AttendanceLog } from "@/components/AttendanceLog";
+import { capturePhoto } from "@/lib/attendance-photo";
 import { AttendanceRegistration, AttendanceProfileCard } from "@/components/AttendanceRegistration";
-import { ATTENDANCE_KEY, PEOPLE_KEY, ATTENDANCE_ROLES, samplePeople, parsePeople, isAttendanceRole, punctualityAt, parseAttendance, type AttendancePerson, type AttendanceAction, type AttendanceEntry, type AttendanceRole } from "@/lib/attendance";
+import { ATTENDANCE_KEY, PEOPLE_KEY, ATTENDANCE_ROLES, samplePeople, parsePeople, clockActionError, latestAttendance, isAttendanceRole, punctualityAt, parseAttendance, type AttendancePerson, type AttendanceAction, type AttendanceEntry, type AttendanceRole } from "@/lib/attendance";
 
 export const Route = createFileRoute("/attendance")({
   head: () => ({ meta: [
@@ -37,11 +39,22 @@ function AttendancePage() {
   const mounted = useRef(false);
   const lock = useRef(false);
   const rt = useRealtime();
-  const cloudPeople: AttendancePerson[] = rt.participants.filter(p => isAttendanceRole(p.role) && !registered.some(r => r.id === p.id)).map(p => ({ id: p.id, name: p.name, role: p.role as AttendanceRole, identityNumber: "", contact: "", site: p.site, photo: p.photo_data, startTime: p.start_time, endTime: p.end_time }));
-  const allEntries: AttendanceEntry[] = [...entries, ...rt.logs.filter(l => isAttendanceRole(l.role) && !entries.some(e => e.id === l.id)).map(l => ({ id: l.id, personId: l.participant_id, name: l.name, role: l.role as AttendanceRole, action: (l.action === "Out" ? "Out" : "In") as AttendanceAction, timestamp: l.created_at, photo: l.photo_data, ...(l.punctuality === "Late" || l.punctuality === "On Time" ? { punctuality: l.punctuality } : {}) }))].sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
-  const allRegistered = [...registered, ...cloudPeople];
-  const people = [...samplePeople(), ...allRegistered];
+  const allRegistered = useMemo(() => {
+    const rows = new Map(registered.map(p => [p.id, p]));
+    for (const p of rt.participants) if (isAttendanceRole(p.role)) {
+      const local = rows.get(p.id);
+      rows.set(p.id, { id: p.id, name: p.name, role: p.role, identityNumber: local?.identityNumber ?? "", contact: local?.contact ?? "", site: p.site, photo: p.photo_data, startTime: p.start_time, endTime: p.end_time });
+    }
+    return [...rows.values()];
+  }, [registered, rt.participants]);
+  const allEntries = useMemo(() => {
+    const rows = new Map(entries.map(e => [e.id, e]));
+    for (const l of rt.logs) if (isAttendanceRole(l.role)) rows.set(l.id, { id: l.id, personId: l.participant_id, name: l.name, role: l.role, action: l.action === "Out" ? "Out" : "In", timestamp: l.created_at, photo: l.photo_data, ...(l.punctuality === "Late" || l.punctuality === "On Time" ? { punctuality: l.punctuality } : {}) });
+    return [...rows.values()].sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
+  }, [entries, rt.logs]);
+  const people = useMemo(() => [...new Map([...samplePeople(), ...allRegistered].map(p => [p.id, p])).values()], [allRegistered]);
   const person = people.find(p => p.role === role && p.id === selected);
+  const lastActivity = useMemo(() => person ? latestAttendance(person, allEntries) : undefined, [person, allEntries]);
 
   useEffect(() => {
     mounted.current = true;
@@ -58,13 +71,19 @@ function AttendancePage() {
     return () => { mounted.current = false; window.removeEventListener("storage", sync); stream.current?.getTracks().forEach(t => t.stop()); };
   }, []);
 
-  function savePerson(nextPerson: AttendancePerson) {
+  async function savePerson(nextPerson: AttendancePerson) {
     try {
       const next = [nextPerson, ...parsePeople(localStorage.getItem(PEOPLE_KEY))];
       localStorage.setItem(PEOPLE_KEY, JSON.stringify(next));
-      if (rt.live) void rt.register({ id: nextPerson.id, name: nextPerson.name, role: nextPerson.role, site: nextPerson.site, start_time: nextPerson.startTime, end_time: nextPerson.endTime, photo_data: nextPerson.photo });
+
       setRegistered(next); setRole(nextPerson.role); setSelected(nextPerson.id);
       setNotice({ error: false, text: `${nextPerson.name} registered. Their profile is ready in ${nextPerson.role} Mode.` });
+      if (rt.live) {
+        try {
+          const synced = await rt.register({ id: nextPerson.id, name: nextPerson.name, role: nextPerson.role, site: nextPerson.site, start_time: nextPerson.startTime, end_time: nextPerson.endTime, photo_data: nextPerson.photo });
+          setNotice({ error: !synced, text: synced ? `${nextPerson.name} registered and synced to your account.` : "Registered on this device only. Cloud sync failed; check your connection." });
+        } catch { setNotice({ error: true, text: "Registered on this device only. Cloud sync failed; check your connection." }); }
+      }
       return true;
     } catch { setNotice({ error: true, text: "Person was not saved. Device storage is full or blocked; free some space and try again." }); return false; }
   }
@@ -102,15 +121,9 @@ function AttendancePage() {
     try {
       const element = await startCamera();
       if (!element || !mounted.current || (!action && !reference)) return;
-      const canvas = document.createElement("canvas");
-      canvas.width = 320;
-      canvas.height = Math.round(320 * element.videoHeight / element.videoWidth);
-      const context = canvas.getContext("2d");
-      if (!context) throw new Error("Could not capture a photo. Please try again.");
-      context.drawImage(element, 0, 0, canvas.width, canvas.height);
-      const captured = canvas.toDataURL("image/jpeg", 0.65);
+      const captured = capturePhoto(element, element.videoWidth, element.videoHeight);
       if (reference) { setReferencePhoto(captured); stopCamera(); setNotice({ error: false, text: "Reference photo captured." }); return; }
-      if (action && person) saveClock(action, captured);
+      if (action && person) { await saveClock(action, captured); stopCamera(); }
     } catch (error) {
       if (!mounted.current) return;
       stopCamera();
@@ -120,23 +133,41 @@ function AttendancePage() {
     } finally { lock.current = false; if (mounted.current) setBusy(false); }
   }
 
-  function saveClock(action: AttendanceAction, captured = "") {
+  async function saveClock(action: AttendanceAction, captured = "") {
     if (!person || !loaded) return;
+    const invalid = clockActionError(person, allEntries, action);
+    if (invalid) { setNotice({ error: true, text: invalid }); return; }
     const now = new Date();
     const entry: AttendanceEntry = { id: crypto.randomUUID(), personId: person.id, name: person.name, role: person.role, action, timestamp: now.toISOString(), photo: captured || person.photo, ...(action === "In" ? { punctuality: punctualityAt(now, person.startTime, person.endTime) } : {}) };
     try {
       const next = [entry, ...parseAttendance(localStorage.getItem(ATTENDANCE_KEY))];
       localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(next)); setEntries(next);
-      if (rt.live) void rt.register({ id: person.id, name: person.name, role: person.role, site: person.site, start_time: person.startTime, end_time: person.endTime, photo_data: person.photo }).then(() => rt.logClock({ id: entry.id, participant_id: person.id, name: person.name, role: person.role, action, punctuality: entry.punctuality ?? null, photo_data: entry.photo, created_at: entry.timestamp }));
-      setNotice({ error: false, text: `${person.name} clocked ${action === "In" ? "in" : "out"}${entry.punctuality ? ` · ${entry.punctuality}` : ""}. Attendance saved on this device.` });
+      setNotice({ error: false, text: `${person.name} clocked ${action === "In" ? "in" : "out"}${entry.punctuality ? ` · ${entry.punctuality}` : ""}. Saved on this device.` });
+      if (rt.live) {
+        try {
+          const registered = await rt.register({ id: person.id, name: person.name, role: person.role, site: person.site, start_time: person.startTime, end_time: person.endTime, photo_data: person.photo });
+          const synced = registered && await rt.logClock({ id: entry.id, participant_id: person.id, name: person.name, role: person.role, action, punctuality: entry.punctuality ?? null, photo_data: entry.photo, created_at: entry.timestamp });
+          if (mounted.current) setNotice({ error: !synced, text: synced ? `${person.name} clocked ${action === "In" ? "in" : "out"}${entry.punctuality ? ` · ${entry.punctuality}` : ""}. Synced to your account.` : "Attendance saved on this device only. Cloud sync failed; check your connection." });
+        } catch { if (mounted.current) setNotice({ error: true, text: "Attendance saved on this device only. Cloud sync failed; check your connection." }); }
+      }
     } catch { setNotice({ error: true, text: "Attendance was not saved. Device storage is full or blocked; free some space and try again." }); }
   }
 
-  function clock(action: AttendanceAction) {
-    if (busy || !person || !loaded) return;
-    if (active) void useCamera(action);
-    else saveClock(action);
+  async function clock(action: AttendanceAction) {
+    if (lock.current || busy || !person || !loaded) return;
+    const invalid = clockActionError(person, allEntries, action);
+    if (invalid) { setNotice({ error: true, text: invalid }); return; }
+    if (active) { await useCamera(action); return; }
+    lock.current = true; setBusy(true);
+    try { await saveClock(action); }
+    finally { lock.current = false; if (mounted.current) setBusy(false); }
   }
+
+  useEffect(() => {
+    const pause = () => { if (document.hidden) stopCamera(); };
+    document.addEventListener("visibilitychange", pause);
+    return () => document.removeEventListener("visibilitychange", pause);
+  }, []);
 
   return <div className="attendance-theme min-h-screen bg-background">
     <header className="border-b border-border bg-card"><div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-5 py-5">
@@ -157,9 +188,9 @@ function AttendancePage() {
             <Select value={selected} onValueChange={setSelected} disabled={busy || !people.some(p => p.role === role)}><SelectTrigger aria-labelledby="attendance-person" className="h-12 bg-card"><SelectValue placeholder="No people registered" /></SelectTrigger><SelectContent className="attendance-theme">{people.filter(p => p.role === role).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select>
           </div>
           {person && <AttendanceProfileCard person={person} entries={allEntries} />}
-          <div className="flex items-center gap-2 border-y border-border py-4 text-sm"><Clock3 className="size-4 text-primary" /><span>Last activity: {allEntries.find(e => e.personId === person?.id || (!e.personId && e.role === role && e.name === person?.name))?.action ?? "Not recorded"}</span></div>
+          <div className="flex items-center gap-2 border-y border-border py-4 text-sm"><Clock3 className="size-4 text-primary" /><span>Last activity: {lastActivity?.action ?? "Not recorded"}</span></div>
           <div className="mt-6 grid grid-cols-2 gap-3"><Button className="h-12" disabled={busy || !loaded || !person} onClick={() => clock("In")}><LogIn /> Clock In</Button><Button className="h-12" variant="secondary" disabled={busy || !loaded || !person} onClick={() => clock("Out")}><LogOut /> Clock Out</Button></div>
-          {busy && <p role="status" className="mt-3 text-sm text-muted-foreground">Waiting for camera…</p>}
+          {busy && <p role="status" className="mt-3 text-sm text-muted-foreground">Saving attendance…</p>}
         </section>}
         <section className="self-start overflow-hidden rounded-lg border border-border bg-card" aria-label="Camera widget">
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3"><h2 className="flex items-center gap-2 font-sans text-sm font-semibold"><Camera className="size-4" /> Camera</h2><span className="text-xs text-muted-foreground">{active ? "Live" : "Off"}</span></div>
@@ -167,11 +198,9 @@ function AttendancePage() {
           <div className="flex justify-end px-4 py-3"><Button variant="outline" disabled={busy || !loaded} onClick={active ? stopCamera : () => void useCamera()}>{active ? <CameraOff /> : <Camera />}{active ? "Stop camera" : "Enable camera"}</Button></div>
         </section>
       </div>
-      <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Records and photos stay on this device. Sample teacher and child names are included. Obtain consent before saving personal details or children's photos.</p>
+      <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Signed-out records stay on this device. Signed-in records sync privately to your account. Sample teacher and child names are included. Obtain consent before saving personal details or children's photos.</p>
       <div className="mt-8"><LiveSiteActivity /></div>
-      <section className="mt-10 border-t border-border pt-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="font-sans text-xl font-semibold">Attendance log</h2><span className="text-sm text-muted-foreground">{allEntries.length} records</span></div>
-        <div className="overflow-x-auto rounded-lg border border-border bg-card"><table className="w-full min-w-[720px] text-left text-sm"><thead className="bg-muted text-muted-foreground"><tr>{["Name", "Role", "Timestamp · SAST", "Action", "Punctuality", "Photo"].map(h => <th key={h} className="px-4 py-3 font-medium">{h}</th>)}</tr></thead><tbody>{allEntries.map(e => <tr key={e.id} className="border-t border-border"><td className="px-4 py-3 font-medium">{e.name}</td><td className="px-4 py-3">{e.role}</td><td className="px-4 py-3">{new Date(e.timestamp).toLocaleString("en-ZA", { timeZone: "Africa/Johannesburg" })}</td><td className="px-4 py-3"><span className={`rounded px-2 py-1 text-xs font-medium ${e.action === "In" ? "bg-accent text-primary" : "bg-secondary text-secondary-foreground"}`}>{e.action}</span></td><td className={`px-4 py-3 ${e.punctuality === "Late" ? "text-destructive" : "text-primary"}`}>{e.punctuality ?? "—"}</td><td className="px-4 py-2">{e.photo ? <Button variant="ghost" className="h-12 w-16 p-0" aria-label={`View photo of ${e.name} clocked ${e.action.toLowerCase()}`} onClick={() => setPhoto(e)}><img src={e.photo} alt={`${e.name} attendance snapshot`} className="h-12 w-16 rounded object-cover" /></Button> : "—"}</td></tr>)}{!allEntries.length && <tr><td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">No attendance recorded yet.</td></tr>}</tbody></table></div>
-      </section>
+      <AttendanceLog entries={allEntries} onPhoto={setPhoto} />
     </main>
     {photo && <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 p-5" onClick={() => setPhoto(null)}><section role="dialog" aria-modal="true" aria-label="Attendance photo" className="w-full max-w-md rounded-lg bg-card p-4" onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === "Escape") setPhoto(null); }}><div className="mb-3 flex items-center justify-between gap-2"><h2 className="font-sans font-semibold">{photo.name} · {photo.action}</h2><Button autoFocus size="icon" variant="ghost" aria-label="Close photo" onClick={() => setPhoto(null)}><X /></Button></div><img src={photo.photo} alt={`${photo.name} attendance snapshot`} className="w-full rounded" /><p className="mt-3 text-xs text-muted-foreground">{new Date(photo.timestamp).toLocaleString()}</p></section></div>}
   </div>;
