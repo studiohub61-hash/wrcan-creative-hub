@@ -70,3 +70,19 @@ export function parseAttendance(raw: string | null): AttendanceEntry[] {
     return typeof e['id'] === "string" && typeof e['name'] === "string" && isAttendanceRole(e['role']) && (e['action'] === "In" || e['action'] === "Out") && typeof e['timestamp'] === "string" && Number.isFinite(Date.parse(e['timestamp'])) && isPhoto(e['photo']) && (e['personId'] === undefined || typeof e['personId'] === "string") && (e['punctuality'] === undefined || e['punctuality'] === "On Time" || e['punctuality'] === "Late");
   });
 }
+
+export function latestAttendance(person: AttendancePerson, entries: AttendanceEntry[]) {
+  return entries.filter(e => e.personId === person.id || (!e.personId && e.role === person.role && e.name === person.name && PROFILES[person.role].some(p => p.id === person.id)))
+    .reduce<AttendanceEntry | undefined>((latest, entry) => !latest || Date.parse(entry.timestamp) > Date.parse(latest.timestamp) ? entry : latest, undefined);
+}
+
+export function clockActionError(person: AttendancePerson, entries: AttendanceEntry[], action: AttendanceAction): string | null {
+  const latest = latestAttendance(person, entries);
+  if (action === "In" && latest?.action === "In") return "Already clocked in. Clock out before starting another attendance.";
+  if (action === "Out" && latest?.action !== "In") return "Clock in first before clocking out.";
+  return null;
+}
+
+export function duplicateRegistration(person: AttendancePerson, people: AttendancePerson[]): boolean {
+  return people.some(p => p.id !== person.id && p.identityNumber.trim().toLowerCase() === person.identityNumber.trim().toLowerCase() && Boolean(p.identityNumber.trim()));
+}
