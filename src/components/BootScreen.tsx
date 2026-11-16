@@ -7,14 +7,9 @@ export function BootScreen() {
 
   useEffect(() => {
     // Show the full splash only on the first open of a session; afterwards stay out of the way.
-    const seen = sessionStorage.getItem("wanda-booted");
-    sessionStorage.setItem("wanda-booted", "1");
-    const t1 = setTimeout(() => setHidden(true), seen ? 0 : 900);
-    const t2 = setTimeout(() => setGone(true), seen ? 300 : 1400);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    // Hydration is ready: never impose a timed delay before the app can be used.
+    setHidden(true);
+    setGone(true);
   }, []);
 
   if (gone) return null;

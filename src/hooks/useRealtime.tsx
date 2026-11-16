@@ -18,6 +18,7 @@ const RealtimeContext = createContext<Ctx | null>(null);
 
 export function RealtimeProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const userId = user?.id;
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [logs, setLogs] = useState<AttendanceLog[]>([]);
   const [notices, setNotices] = useState<LiveNotice[]>([]);
@@ -30,7 +31,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!user) { setParticipants([]); setLogs([]); return; }
+    if (!userId) { setParticipants([]); setLogs([]); setNotices([]); setUnread(0); return; }
     let cancelled = false;
     void Promise.all([
       supabase.from("participants").select("*").order("created_at", { ascending: false }).limit(200),
@@ -49,13 +50,24 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       })
       .subscribe();
     return () => { cancelled = true; void supabase.removeChannel(channel); };
-  }, [user, notify]);
+  }, [userId, notify]);
 
-  const register = useCallback(async (p: TablesInsert<"participants">) => !(await supabase.from("participants").upsert(p)).error, []);
-  const logClock = useCallback(async (l: TablesInsert<"attendance_logs">) => {
-    const { error } = await supabase.from("attendance_logs").insert(l);
-    if (!error) await supabase.from("participants").update({ status: l.action === "In" ? "on_site" : "off_site" }).eq("id", l.participant_id);
+  const register = useCallback(async (p: TablesInsert<"participants">) => {
+    // Clocking an existing profile must not reset its on-site status or rewrite its photo.
+    if (participants.some(row => row.id === p.id)) return true;
+    const { data, error } = await supabase.from("participants").upsert(p).select().single();
+    if (!error && data) setParticipants(rows => [data, ...rows.filter(row => row.id !== data.id)]);
     return !error;
+  }, [participants]);
+  const logClock = useCallback(async (l: TablesInsert<"attendance_logs">) => {
+    const { data, error } = await supabase.from("attendance_logs").insert(l).select().single();
+    if (error) return false;
+    if (data) setLogs(rows => [data, ...rows.filter(row => row.id !== data.id)].slice(0, 200));
+    const status = l.action === "In" ? "on_site" : "off_site";
+    const { error: statusError } = await supabase.from("participants").update({ status }).eq("id", l.participant_id);
+    if (!statusError) setParticipants(rows => rows.map(row => row.id === l.participant_id ? { ...row, status } : row));
+    else toast.error("Clock-in saved, but on-site status could not refresh.");
+    return true;
   }, []);
 
   const value = useMemo<Ctx>(() => ({ live: !!user, participants, logs, notices, unread, markRead: () => setUnread(0), clear: () => { setNotices([]); setUnread(0); }, register, logClock }), [user, participants, logs, notices, unread, register, logClock]);

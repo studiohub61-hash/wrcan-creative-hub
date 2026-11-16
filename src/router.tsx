@@ -11,12 +11,12 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreload: "intent",
-    defaultPreloadStaleTime: 0,
+    defaultPreloadStaleTime: 30_000,
     // Smoother navigation: show the branded loader instead of a blank screen,
     // and only once a transition is slow enough to be noticed.
     defaultPendingComponent: RoutePending,
     defaultPendingMs: 120,
-    defaultPendingMinMs: 300,
+    defaultPendingMinMs: 0,
   });
 
   return router;
