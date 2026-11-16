@@ -1,47 +1,42 @@
-import { useState, type FormEvent } from "react";
+import { memo, useMemo, useState, type FormEvent } from "react";
 import { Camera, Save, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ATTENDANCE_ROLES, isAttendanceRole, profileStats, type AttendancePerson, type AttendanceEntry, type AttendanceRole } from "@/lib/attendance";
+import { ATTENDANCE_ROLES, duplicateRegistration, isAttendanceRole, profileStats, type AttendancePerson, type AttendanceEntry, type AttendanceRole } from "@/lib/attendance";
+import { compressAttendancePhoto } from "@/lib/attendance-photo";
 
-export function AttendanceProfileCard({ person, entries }: { person: AttendancePerson; entries: AttendanceEntry[] }) {
-  const stats = profileStats(person, entries);
+export const AttendanceProfileCard = memo(function AttendanceProfileCard({ person, entries }: { person: AttendancePerson; entries: AttendanceEntry[] }) {
+  const stats = useMemo(() => profileStats(person, entries), [person, entries]);
   return <article aria-label={`Profile card for ${person.name}`} className="rounded-lg border border-border bg-card p-4">
     <div className="flex items-center gap-3">{person.photo ? <img src={person.photo} alt={`${person.name} reference`} className="size-16 shrink-0 rounded-md object-cover" /> : <div className="flex size-16 shrink-0 items-center justify-center rounded-md bg-accent text-primary"><UserRound className="size-7" /></div>}<div className="min-w-0"><h3 className="break-words font-sans font-semibold">{person.name}</h3><p className="text-sm text-primary">{person.role}</p><p className="break-words text-xs text-muted-foreground">{person.site}</p></div></div>
     <dl className="mt-4 grid grid-cols-2 gap-3 text-sm"><div><dt className="text-xs text-muted-foreground">Custom Hours · SAST</dt><dd>{person.startTime} – {person.endTime}</dd></div><div><dt className="text-xs text-muted-foreground">Attendance Count</dt><dd className="font-semibold">{stats.count}</dd></div><div><dt className="text-xs text-muted-foreground">Punctuality Rating</dt><dd className={stats.punctuality === "Late" ? "font-semibold text-destructive" : "font-semibold text-primary"}>{stats.punctuality ?? "Not clocked in yet"}</dd></div><div><dt className="text-xs text-muted-foreground">On-time clock-ins</dt><dd>{stats.onTime} / {stats.count}</dd></div></dl>
   </article>;
-}
+});
 
 export function AttendanceRegistration({ onSave, people, entries, photo, onPhoto, onCamera, busy, loaded }: {
-  onSave: (person: AttendancePerson) => boolean; people: AttendancePerson[]; entries: AttendanceEntry[]; photo: string;
+  onSave: (person: AttendancePerson) => Promise<boolean>; people: AttendancePerson[]; entries: AttendanceEntry[]; photo: string;
   onPhoto: (photo: string) => void; onCamera: () => void; busy: boolean; loaded: boolean;
 }) {
   const [role, setRole] = useState<AttendanceRole>("Teacher");
   const [error, setError] = useState("");
   const [reading, setReading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+  const [visibleCount, setVisibleCount] = useState(12);
+  const matchingPeople = useMemo(() => people.filter(p => `${p.name} ${p.role} ${p.site}`.toLowerCase().includes(search.trim().toLowerCase())), [people, search]);
   async function upload(file: File | undefined) {
     if (!file) return;
     setError(""); setReading(true);
     try {
-      if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error("Choose a JPG, PNG or WebP photo.");
-      if (file.size > 10 * 1024 * 1024) throw new Error("Choose a photo smaller than 10 MB.");
-      const image = await createImageBitmap(file);
-      try {
-        const canvas = document.createElement("canvas");
-        const scale = Math.min(1, 480 / Math.max(image.width, image.height));
-        canvas.width = Math.round(image.width * scale); canvas.height = Math.round(image.height * scale);
-        const context = canvas.getContext("2d");
-        if (!context) throw new Error("Photo could not be processed.");
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        onPhoto(canvas.toDataURL("image/jpeg", 0.75));
-      } finally { image.close(); }
+      onPhoto(await compressAttendancePhoto(file));
     } catch (e) { setError(e instanceof Error ? e.message : "Photo could not be loaded."); }
     finally { setReading(false); }
   }
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError("");
+    if (saving || reading || busy) return;
     const form = event.currentTarget;
     const data = new FormData(form);
     const value = (key: string) => String(data.get(key) ?? "").trim();
@@ -49,7 +44,12 @@ export function AttendanceRegistration({ onSave, people, entries, photo, onPhoto
     if (!photo) { setError("Add a reference photo before saving."); return; }
     const startTime = value("startTime"); const endTime = value("endTime");
     if (startTime === endTime) { setError("Start and end times must be different."); return; }
-    if (onSave({ id: crypto.randomUUID(), role, name: value("name"), identityNumber: value("identityNumber"), contact: value("contact"), site: value("site"), photo, startTime, endTime })) { form.reset(); onPhoto(""); }
+    const person = { id: crypto.randomUUID(), role, name: value("name"), identityNumber: value("identityNumber"), contact: value("contact"), site: value("site"), photo, startTime, endTime };
+    if (duplicateRegistration(person, people)) { setError("This ID / Birth Cert Number is already registered."); return; }
+    setSaving(true);
+    try { if (await onSave(person)) { form.reset(); onPhoto(""); } }
+    catch { setError("Person could not be saved. Please try again."); }
+    finally { setSaving(false); }
   }
   return <section className="min-w-0">
     <h2 className="font-sans text-xl font-semibold">Register people</h2>
@@ -59,8 +59,8 @@ export function AttendanceRegistration({ onSave, people, entries, photo, onPhoto
       <fieldset><legend className="mb-2 text-sm font-medium">Admin Custom Shift Hours · Johannesburg</legend><div className="grid grid-cols-2 gap-3"><div><Label htmlFor="register-start">Start Time</Label><Input required id="register-start" name="startTime" type="time" defaultValue="08:00" className="mt-2 bg-card" /></div><div><Label htmlFor="register-end">End Time</Label><Input required id="register-end" name="endTime" type="time" defaultValue="16:00" className="mt-2 bg-card" /></div></div></fieldset>
       <div><Label htmlFor="register-photo">Reference Photo</Label><Input disabled={busy || reading} id="register-photo" type="file" accept="image/jpeg,image/png,image/webp" className="mt-2 h-auto bg-card" onChange={e => void upload(e.target.files?.[0])} /><Button type="button" variant="outline" className="mt-3" disabled={busy || reading || !loaded} onClick={onCamera}><Camera /> Take reference photo</Button>{photo && <img src={photo} alt="Reference photo preview" className="mt-3 size-24 rounded-md object-cover" />}</div>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" className="h-12 w-full" disabled={busy || reading || !loaded}><Save />{reading ? "Preparing photo…" : "Save Person"}</Button>
+      <Button type="submit" className="h-12 w-full" disabled={busy || reading || saving || !loaded}><Save />{reading ? "Preparing photo…" : saving ? "Saving…" : "Save Person"}</Button>
     </form>
-    <div className="mt-8 space-y-3"><h2 className="font-sans text-xl font-semibold">Registered profiles <span className="text-sm text-muted-foreground">({people.length})</span></h2>{people.map(p => <AttendanceProfileCard key={p.id} person={p} entries={entries} />)}{!people.length && <p className="text-sm text-muted-foreground">No people registered yet.</p>}</div>
+    <div className="mt-8 space-y-3"><h2 className="font-sans text-xl font-semibold">Registered profiles <span className="text-sm text-muted-foreground">({people.length})</span></h2><Input aria-label="Search registered profiles" placeholder="Search name, role or site" value={search} onChange={e => { setSearch(e.target.value); setVisibleCount(12); }} />{matchingPeople.slice(0, visibleCount).map(p => <AttendanceProfileCard key={p.id} person={p} entries={entries} />)}{!matchingPeople.length && <p className="text-sm text-muted-foreground">{people.length ? "No matching profiles." : "No people registered yet."}</p>}{matchingPeople.length > visibleCount && <Button variant="outline" onClick={() => setVisibleCount(n => n + 12)}>Show more profiles</Button>}</div>
   </section>;
 }

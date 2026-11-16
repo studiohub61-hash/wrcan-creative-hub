@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { parseAttendance, parsePeople, profileStats, punctualityAt, PROFILES, ATTENDANCE_KEY, type AttendancePerson, type AttendanceEntry } from "@/lib/attendance";
+import { clockActionError, duplicateRegistration, parseAttendance, parsePeople, profileStats, punctualityAt, PROFILES, ATTENDANCE_KEY, type AttendancePerson, type AttendanceEntry } from "@/lib/attendance";
+import { photoDimensions, PHOTO_JPEG_QUALITY } from "@/lib/attendance-photo";
 
 describe("device-local attendance", () => {
   it("provides teacher and child mock profiles immediately", () => {
@@ -20,6 +21,20 @@ describe("device-local attendance", () => {
 });
 
 const person: AttendancePerson = { id: "registered-1", name: "Test Person", role: "Parent / Farmer", identityNumber: "123", contact: "0710000000", site: "Test Farm", photo: "data:image/jpeg;base64,cGhvdG8=", startTime: "08:00", endTime: "16:00" };
+describe("lean photos and safe attendance actions", () => {
+  it("caps landscape photos at 300px", () => expect(photoDimensions(4000, 3000)).toEqual({ width: 300, height: 225 }));
+  it("caps portrait photos without stretching", () => expect(photoDimensions(3000, 4000)).toEqual({ width: 225, height: 300 }));
+  it("does not enlarge small photos", () => expect(photoDimensions(120, 80)).toEqual({ width: 120, height: 80 }));
+  it("uses 0.6 JPEG quality", () => expect(PHOTO_JPEG_QUALITY).toBe(0.6));
+  const entry: AttendanceEntry = { id: "clock-1", personId: person.id, name: person.name, role: person.role, action: "In", timestamp: "2026-11-16T06:00:00Z", photo: "" };
+  it("blocks consecutive clock-ins", () => expect(clockActionError(person, [entry], "In")).not.toBeNull());
+  it("allows clock-out after clock-in", () => expect(clockActionError(person, [entry], "Out")).toBeNull());
+  it("blocks clock-out without clock-in", () => expect(clockActionError(person, [], "Out")).not.toBeNull());
+  it("allows the next clock-in after clock-out", () => expect(clockActionError(person, [entry, { ...entry, id: "out", action: "Out", timestamp: "2026-11-16T14:00:00Z" }], "In")).toBeNull());
+  it("does not use another person's attendance", () => expect(clockActionError(person, [{ ...entry, personId: "other" }], "In")).toBeNull());
+  it("rejects a duplicate identity number", () => expect(duplicateRegistration({ ...person, id: "new", identityNumber: " 123 " }, [person])).toBe(true));
+  it("allows different identity numbers with matching names", () => expect(duplicateRegistration({ ...person, id: "new", identityNumber: "456" }, [person])).toBe(false));
+});
 describe("registration and custom shift sync", () => {
   it.each(["Teacher", "Child", "Parent / Farmer"] as const)("restores registered %s details and hours", role => {
     expect(parsePeople(JSON.stringify([{ ...person, role }]))).toEqual([{ ...person, role }]);

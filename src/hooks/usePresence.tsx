@@ -24,16 +24,17 @@ export function PresenceProvider({ children }: { children: ReactNode }) {
   const [online, setOnline] = useState<Set<string>>(new Set());
   const [names, setNames] = useState<Record<string, string>>({});
   const name = profile?.full_name || "Member";
+  const userId = user?.id;
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setOnline(new Set());
       setNames({});
       return;
     }
 
     const channel = supabase.channel("wanda-presence", {
-      config: { presence: { key: user.id } },
+      config: { presence: { key: userId } },
     });
 
     const sync = () => {
@@ -61,7 +62,7 @@ export function PresenceProvider({ children }: { children: ReactNode }) {
       void supabase
         .from("profiles")
         .update({ last_seen_at: new Date().toISOString() })
-        .eq("id", user.id);
+        .eq("id", userId);
     };
     touch();
     const timer = window.setInterval(touch, 60_000);
@@ -73,7 +74,7 @@ export function PresenceProvider({ children }: { children: ReactNode }) {
       touch();
       void supabase.removeChannel(channel);
     };
-  }, [user, name]);
+  }, [userId, name]);
 
   const value = useMemo<PresenceValue>(
     () => ({

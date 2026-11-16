@@ -1,4 +1,4 @@
-import logoUrl from "@/assets/wrcan-logo.png";
+import logoUrl from "@/assets/wrcan-logo-compact.webp";
 
 /** Branded loader shown while a route loads, so navigation never flashes blank. */
 export function RoutePending() {

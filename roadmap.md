@@ -11,6 +11,8 @@
 - [x] Verify infrastructure calculations, photo evidence, saving and saved audit review.
 - [x] Add SmartStart camera attendance with teacher/child modes and local logs.
 - [ ] Test attendance capture, camera errors and persistence.
+- [ ] Improve Android startup speed and attendance photo processing, search, export, duplicate protection and save feedback.
+- [ ] Verify enhanced attendance registration, clock-ins, camera and signed-in saving.
 - [ ] Add a button-accessible sample retention dashboard, calculator, student risk view, intervention evidence and donor CSV report.
 - [ ] Test retention calculations and the dashboard's interactive flow.
 - [x] Add the Home Registration & Clock-In button and four attendance tabs.
