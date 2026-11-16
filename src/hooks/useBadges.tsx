@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 export function useUnreadCount() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const userId = user?.id;
   const { data = 0 } = useQuery({
     queryKey: ["unread-count", user?.id],
     enabled: !!user,
@@ -20,10 +21,10 @@ export function useUnreadCount() {
   // Live badge: the count moves the moment a message arrives or is read,
   // instead of waiting for the next poll.
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     const invalidate = () => void qc.invalidateQueries({ queryKey: ["unread-count"] });
     const channel = supabase
-      .channel(`unread-${user.id}`)
+      .channel(`unread-${userId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, invalidate)
       .on(
         "postgres_changes",
@@ -32,7 +33,7 @@ export function useUnreadCount() {
       )
       .subscribe();
     return () => void supabase.removeChannel(channel);
-  }, [user, qc]);
+  }, [userId, qc]);
 
   return data;
 }

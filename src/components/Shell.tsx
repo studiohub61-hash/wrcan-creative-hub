@@ -2,8 +2,8 @@ import { NotificationBell } from "@/components/LiveActivity";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Radio, Home, MessageCircle, User, Briefcase } from "lucide-react";
 import type { ReactNode } from "react";
-import { useUnreadCount, useControlAccess } from "@/hooks/useBadges";
-import logoUrl from "@/assets/wrcan-logo.png";
+import { useUnreadCount } from "@/hooks/useBadges";
+import logoUrl from "@/assets/wrcan-logo-compact.webp";
 
 const NAV = [
   { to: "/", label: "Home", icon: Home },
@@ -28,9 +28,7 @@ export function Shell({
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const unread = useUnreadCount();
-  const { allowed: canControl } = useControlAccess();
   const nav = NAV;
-  void canControl;
 
   return (
     <div className="gold-pattern relative min-h-screen">

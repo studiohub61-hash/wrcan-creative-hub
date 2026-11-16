@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-import medallion from "@/assets/medallion.png";
+import medallion from "@/assets/medallion-compact.webp";
 
 type MedallionProps = {
   to: string;
@@ -18,6 +18,7 @@ export function Medallion({ to, label, icon: Icon, caption }: MedallionProps) {
           alt=""
           aria-hidden
           loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full drop-shadow-[0_10px_18px_oklch(0.4_0.06_35/0.35)]"
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center px-6">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logoUrl from "@/assets/wrcan-logo.png";
+import logoUrl from "@/assets/wrcan-logo-compact.webp";
 
 export function BootScreen() {
   const [hidden, setHidden] = useState(false);
