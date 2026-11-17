@@ -1,5 +1,5 @@
 import { memo, useMemo, useState, type FormEvent } from "react";
-import { Camera, Save, UserRound } from "lucide-react";
+import { Camera, Save, Trash2, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,8 +15,8 @@ export const AttendanceProfileCard = memo(function AttendanceProfileCard({ perso
   </article>;
 });
 
-export function AttendanceRegistration({ onSave, people, entries, photo, onPhoto, onCamera, busy, loaded }: {
-  onSave: (person: AttendancePerson) => Promise<boolean>; people: AttendancePerson[]; entries: AttendanceEntry[]; photo: string;
+export function AttendanceRegistration({ onSave, onDelete, people, entries, photo, onPhoto, onCamera, busy, loaded }: {
+  onSave: (person: AttendancePerson) => Promise<boolean>; onDelete: (person: AttendancePerson) => void; people: AttendancePerson[]; entries: AttendanceEntry[]; photo: string;
   onPhoto: (photo: string) => void; onCamera: () => void; busy: boolean; loaded: boolean;
 }) {
   const [role, setRole] = useState<AttendanceRole>("Teacher");
@@ -61,6 +61,6 @@ export function AttendanceRegistration({ onSave, people, entries, photo, onPhoto
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <Button type="submit" className="h-12 w-full" disabled={busy || reading || saving || !loaded}><Save />{reading ? "Preparing photo…" : saving ? "Saving…" : "Save Person"}</Button>
     </form>
-    <div className="mt-8 space-y-3"><h2 className="font-sans text-xl font-semibold">Registered profiles <span className="text-sm text-muted-foreground">({people.length})</span></h2><Input aria-label="Search registered profiles" placeholder="Search name, role or site" value={search} onChange={e => { setSearch(e.target.value); setVisibleCount(12); }} />{matchingPeople.slice(0, visibleCount).map(p => <AttendanceProfileCard key={p.id} person={p} entries={entries} />)}{!matchingPeople.length && <p className="text-sm text-muted-foreground">{people.length ? "No matching profiles." : "No people registered yet."}</p>}{matchingPeople.length > visibleCount && <Button variant="outline" onClick={() => setVisibleCount(n => n + 12)}>Show more profiles</Button>}</div>
+    <div className="mt-8 space-y-3"><h2 className="font-sans text-xl font-semibold">Registered profiles <span className="text-sm text-muted-foreground">({people.length})</span></h2><Input aria-label="Search registered profiles" placeholder="Search name, role or site" value={search} onChange={e => { setSearch(e.target.value); setVisibleCount(12); }} />{matchingPeople.slice(0, visibleCount).map(p => <div key={p.id} className="relative"><AttendanceProfileCard person={p} entries={entries} /><Button type="button" size="sm" variant="destructive" disabled={busy} aria-label={`Delete ${p.name}`} className="absolute right-3 top-3" onClick={() => { if (window.confirm(`Delete ${p.name} and all their clock-ins? This removes them from every phone.`)) onDelete(p); }}><Trash2 /> Delete</Button></div>)}{!matchingPeople.length && <p className="text-sm text-muted-foreground">{people.length ? "No matching profiles." : "No people registered yet."}</p>}{matchingPeople.length > visibleCount && <Button variant="outline" onClick={() => setVisibleCount(n => n + 12)}>Show more profiles</Button>}</div>
   </section>;
 }

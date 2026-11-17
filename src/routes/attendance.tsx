@@ -81,11 +81,23 @@ function AttendancePage() {
       if (rt.live) {
         try {
           const synced = await rt.register({ id: nextPerson.id, name: nextPerson.name, role: nextPerson.role, site: nextPerson.site, start_time: nextPerson.startTime, end_time: nextPerson.endTime, photo_data: nextPerson.photo });
-          setNotice({ error: !synced, text: synced ? `${nextPerson.name} registered and synced to your account.` : "Registered on this device only. Cloud sync failed; check your connection." });
+          setNotice({ error: !synced, text: synced ? `${nextPerson.name} registered and synced to every team phone.` : "Registered on this device only. Cloud sync failed; check your connection." });
         } catch { setNotice({ error: true, text: "Registered on this device only. Cloud sync failed; check your connection." }); }
       }
       return true;
     } catch { setNotice({ error: true, text: "Person was not saved. Device storage is full or blocked; free some space and try again." }); return false; }
+  }
+
+  async function deletePerson(target: AttendancePerson) {
+    try {
+      const people = parsePeople(localStorage.getItem(PEOPLE_KEY)).filter(p => p.id !== target.id);
+      const logs = parseAttendance(localStorage.getItem(ATTENDANCE_KEY)).filter(e => e.personId !== target.id);
+      localStorage.setItem(PEOPLE_KEY, JSON.stringify(people)); localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(logs));
+      setRegistered(people); setEntries(logs);
+    } catch { /* device copy unavailable; cloud delete still runs */ }
+    if (selected === target.id) setSelected("");
+    const ok = rt.live ? await rt.remove(target.id) : true;
+    setNotice({ error: !ok, text: ok ? `${target.name} and their clock-ins were deleted.` : `${target.name} could not be deleted from the cloud. Check your connection and try again.` });
   }
 
   function stopCamera() {
@@ -147,7 +159,7 @@ function AttendancePage() {
         try {
           const registered = await rt.register({ id: person.id, name: person.name, role: person.role, site: person.site, start_time: person.startTime, end_time: person.endTime, photo_data: person.photo });
           const synced = registered && await rt.logClock({ id: entry.id, participant_id: person.id, name: person.name, role: person.role, action, punctuality: entry.punctuality ?? null, photo_data: entry.photo, created_at: entry.timestamp });
-          if (mounted.current) setNotice({ error: !synced, text: synced ? `${person.name} clocked ${action === "In" ? "in" : "out"}${entry.punctuality ? ` · ${entry.punctuality}` : ""}. Synced to your account.` : "Attendance saved on this device only. Cloud sync failed; check your connection." });
+          if (mounted.current) setNotice({ error: !synced, text: synced ? `${person.name} clocked ${action === "In" ? "in" : "out"}${entry.punctuality ? ` · ${entry.punctuality}` : ""}. Synced to every team phone.` : "Attendance saved on this device only. Cloud sync failed; check your connection." });
         } catch { if (mounted.current) setNotice({ error: true, text: "Attendance saved on this device only. Cloud sync failed; check your connection." }); }
       }
     } catch { setNotice({ error: true, text: "Attendance was not saved. Device storage is full or blocked; free some space and try again." }); }
@@ -181,7 +193,7 @@ function AttendancePage() {
       </Tabs>
       {notice && <div role="alert" className={`mb-5 flex gap-2 rounded-md border p-3 text-sm ${notice.error ? "border-destructive/40 bg-destructive/5 text-destructive" : "border-primary/30 bg-accent text-primary"}`}>{notice.error ? <AlertCircle className="size-4 shrink-0" /> : <CheckCircle2 className="size-4 shrink-0" />}<span>{notice.text}</span></div>}
       <div className="grid gap-7 md:grid-cols-[1fr_1.2fr]">
-        {tab === "register" ? <AttendanceRegistration onSave={savePerson} people={allRegistered} entries={allEntries} photo={referencePhoto} onPhoto={setReferencePhoto} onCamera={() => void useCamera(undefined, true)} busy={busy} loaded={loaded} /> :
+        {tab === "register" ? <AttendanceRegistration onSave={savePerson} onDelete={p => void deletePerson(p)} people={allRegistered} entries={allEntries} photo={referencePhoto} onPhoto={setReferencePhoto} onCamera={() => void useCamera(undefined, true)} busy={busy} loaded={loaded} /> :
         <section className="min-w-0 py-2">
           <h2 className="font-sans text-xl font-semibold">{role} register</h2>
           <div className="my-5"><label id="attendance-person" className="mb-2 block text-sm font-medium">{role} name</label>
@@ -198,7 +210,7 @@ function AttendancePage() {
           <div className="flex justify-end px-4 py-3"><Button variant="outline" disabled={busy || !loaded} onClick={active ? stopCamera : () => void useCamera()}>{active ? <CameraOff /> : <Camera />}{active ? "Stop camera" : "Enable camera"}</Button></div>
         </section>
       </div>
-      <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Signed-out records stay on this device. Signed-in records sync privately to your account. Sample teacher and child names are included. Obtain consent before saving personal details or children's photos.</p>
+      <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Signed-out records stay on this device. Signed-in records are shared live with every signed-in team phone. Sample teacher and child names are included. Obtain consent before saving personal details or children's photos.</p>
       <div className="mt-8"><LiveSiteActivity /></div>
       <AttendanceLog entries={allEntries} onPhoto={setPhoto} />
     </main>
