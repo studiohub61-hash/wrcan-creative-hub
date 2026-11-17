@@ -1,11 +1,12 @@
 {
+  "id": "/",
   "name": "Wanda Recruitment & Catering Agency",
   "short_name": "Wanda",
   "description": "Jobs, training, certificates and chat for South Africa.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
   "icons": [

@@ -84,11 +84,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "WRCAN app" },
       { name: "theme-color", content: "#0a0a0a" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "Wanda" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "description", content: "Talent Connect Hub connects job seekers, students, recruiters, and catering companies with training and employment opportunities." },
