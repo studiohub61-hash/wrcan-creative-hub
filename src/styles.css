@@ -133,7 +133,10 @@
     border-color: var(--color-border);
   }
 
+  html, body { overflow-x: hidden; max-width: 100%; }
   body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
@@ -281,4 +284,8 @@
   --ring: var(--primary);
   color: var(--foreground);
   letter-spacing: 0;
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
 }

@@ -57,17 +57,17 @@ export function Shell({
           </header>
         )}
 
-        <main className={bare ? "flex-1" : "flex-1 px-4 pb-28"}>{children}</main>
+        <main className={bare ? "flex-1" : "min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))]"}>{children}</main>
 
         {!bare && (
-          <nav className="glass-plate fixed right-0 bottom-0 left-0 z-40 mx-auto flex w-full max-w-2xl items-center justify-around px-2 py-2">
+          <nav className="glass-plate fixed right-0 bottom-0 left-0 z-40 mx-auto flex w-full max-w-2xl items-center justify-around px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
             {nav.map(({ to, label, icon: Icon }) => {
               const active = to === "/" ? pathname === "/" : pathname.startsWith(to);
               return (
                 <Link
                   key={to}
                   to={to}
-                  className={`flex flex-1 flex-col items-center gap-1 rounded-md py-1.5 transition-colors ${
+                  className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-1 rounded-md py-1.5 transition-colors ${
                     active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >

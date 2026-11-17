@@ -206,7 +206,7 @@ function AttendancePage() {
         </section>}
         <section className="self-start overflow-hidden rounded-lg border border-border bg-card" aria-label="Camera widget">
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3"><h2 className="flex items-center gap-2 font-sans text-sm font-semibold"><Camera className="size-4" /> Camera</h2><span className="text-xs text-muted-foreground">{active ? "Live" : "Off"}</span></div>
-          <div className="relative aspect-[4/3] bg-muted"><video ref={video} muted playsInline aria-label="Live camera feed" className={`absolute inset-0 h-full w-full object-cover ${active ? "" : "invisible"}`} />{!active && <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground"><Camera className="size-12" strokeWidth={1.25} /><span className="text-sm">{busy ? "Connecting camera…" : "Camera is off"}</span></div>}</div>
+          <div className="relative aspect-[4/3] bg-muted"><video ref={video} autoPlay muted playsInline aria-label="Live camera feed" className={`absolute inset-0 h-full w-full object-cover ${active ? "" : "invisible"}`} />{!active && <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground"><Camera className="size-12" strokeWidth={1.25} /><span className="text-sm">{busy ? "Connecting camera…" : "Camera is off"}</span></div>}</div>
           <div className="flex justify-end px-4 py-3"><Button variant="outline" disabled={busy || !loaded} onClick={active ? stopCamera : () => void useCamera()}>{active ? <CameraOff /> : <Camera />}{active ? "Stop camera" : "Enable camera"}</Button></div>
         </section>
       </div>
