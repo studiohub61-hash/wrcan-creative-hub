@@ -71,6 +71,13 @@
       "when": 1794489565809,
       "tag": "0009_tighten_open_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794908238992,
+      "tag": "0010_shared_attendance_delete",
+      "breakpoints": true
     }
   ]
 }
