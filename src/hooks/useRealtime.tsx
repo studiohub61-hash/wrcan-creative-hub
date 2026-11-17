@@ -13,6 +13,7 @@ type Ctx = {
   markRead: () => void; clear: () => void;
   register: (p: TablesInsert<"participants">) => Promise<boolean>;
   logClock: (l: TablesInsert<"attendance_logs">) => Promise<boolean>;
+  remove: (id: string) => Promise<boolean>;
 };
 const RealtimeContext = createContext<Ctx | null>(null);
 
@@ -42,11 +43,15 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         const row = payload.new as Participant;
         if (payload.eventType === "INSERT") { setParticipants(p => [row, ...p.filter(x => x.id !== row.id)]); notify(`${row.name} registered as ${row.role}`); }
         else if (payload.eventType === "UPDATE") setParticipants(p => p.map(x => x.id === row.id ? row : x));
+        else if (payload.eventType === "DELETE") { const gone = (payload.old as Participant).id; setParticipants(p => p.filter(x => x.id !== gone)); setLogs(l => l.filter(x => x.participant_id !== gone)); }
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "attendance_logs" }, payload => {
         const row = payload.new as AttendanceLog;
         setLogs(l => [row, ...l.filter(x => x.id !== row.id)].slice(0, 200));
         notify(`${row.name} clocked ${row.action === "In" ? "in" : "out"}${row.punctuality ? ` · ${row.punctuality}` : ""}`);
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "attendance_logs" }, payload => {
+        const gone = (payload.old as AttendanceLog).id; setLogs(l => l.filter(x => x.id !== gone));
       })
       .subscribe();
     return () => { cancelled = true; void supabase.removeChannel(channel); };
@@ -70,7 +75,14 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     return true;
   }, []);
 
-  const value = useMemo<Ctx>(() => ({ live: !!user, participants, logs, notices, unread, markRead: () => setUnread(0), clear: () => { setNotices([]); setUnread(0); }, register, logClock }), [user, participants, logs, notices, unread, register, logClock]);
+  const remove = useCallback(async (id: string) => {
+    const { error } = await supabase.from("participants").delete().eq("id", id);
+    if (error) return false;
+    setParticipants(rows => rows.filter(r => r.id !== id)); setLogs(rows => rows.filter(r => r.participant_id !== id));
+    return true;
+  }, []);
+
+  const value = useMemo<Ctx>(() => ({ live: !!user, participants, logs, notices, unread, markRead: () => setUnread(0), clear: () => { setNotices([]); setUnread(0); }, register, logClock, remove }), [user, participants, logs, notices, unread, register, logClock, remove]);
   return <RealtimeContext.Provider value={value}>{children}</RealtimeContext.Provider>;
 }
 
